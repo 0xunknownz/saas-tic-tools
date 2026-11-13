@@ -7,7 +7,7 @@ import { Route as EnrollRoute } from '../src/routes/mfa.enroll'
 import { Route as SelectRoute } from '../src/routes/tenant.select'
 import { fieldByName, mockApi, renderWithProviders, TEST_PW } from './helpers'
 
-function renderLogin(level: 'mfa_pending' | 'setup', target: string) {
+function renderLogin(level: 'full' | 'mfa_pending' | 'setup', target: string) {
   const root = createRootRoute({ component: Outlet })
   const home = createRoute({ getParentRoute: () => root, path: '/', component: () => <h1>工作台</h1> })
   const project = createRoute({ getParentRoute: () => root, path: '/projects/project-001', component: () => <h1>目标项目</h1> })
@@ -31,16 +31,37 @@ async function submitPassword(container: HTMLElement) {
 }
 
 describe('product authentication route chain', () => {
-  for (const target of ['/projects/project-001?tab=summary#details', 'https://evil.example/landing']) {
+  it('rejects a return target that becomes protocol-relative after URL normalization during full login', async () => {
+    const { container, router } = renderLogin('full', '/console/..//evil.example/landing')
+    await submitPassword(container)
+    await screen.findByRole('heading', { name: '工作台' })
+    expect(router.state.location.pathname).toBe('/')
+  })
+
+  for (const [target, expectedPath] of [
+    ['/projects/project-001?tab=summary#details', '/projects/project-001'],
+    ['https://evil.example/landing', '/'],
+    ['/console/..//evil.example/landing', '/'],
+  ]) {
     it('continues safely to the requested destination after tenant selection: ' + target, async () => {
       const { router, api } = renderLogin('mfa_pending', target)
       vi.mocked(api.listTenants).mockResolvedValue({ items: [{ id: 'tenant-1', slug: 'acme', name: '验收机构', status: 'active', role: 'tenant_admin' }], nextCursor: null, total: 1 })
       await router.navigate({ href: '/tenant/select?redirect=' + encodeURIComponent(target) })
       fireEvent.click(await screen.findByRole('button', { name: '进入', exact: true }))
-      await screen.findByRole('heading', { name: target.startsWith('https:') ? '工作台' : '目标项目' })
-      expect(router.state.location.pathname).toBe(target.startsWith('https:') ? '/' : '/projects/project-001')
+      await screen.findByRole('heading', { name: expectedPath === '/' ? '工作台' : '目标项目' })
+      expect(router.state.location.pathname).toBe(expectedPath)
     })
   }
+
+  it('rejects normalized protocol-relative targets when the MFA route is opened directly', async () => {
+    const { router, container } = renderLogin('mfa_pending', '/')
+    await router.navigate({ href: '/mfa/verify?redirect=' + encodeURIComponent('/console/..//evil.example/landing') })
+    await screen.findByRole('button', { name: '验证并登录' })
+    fireEvent.change(fieldByName(container, 'mfa-verify', 'code'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: '验证并登录' }))
+    await screen.findByRole('heading', { name: '工作台' })
+    expect(router.state.location.pathname).toBe('/')
+  })
 
   it('retains path, query and fragment through real route wrappers and MFA verification', async () => {
     const target = '/projects/project-001?tab=summary#details'
@@ -55,6 +76,15 @@ describe('product authentication route chain', () => {
     expect(router.state.location.search).toEqual({ tab: 'summary' })
     expect(router.state.location.hash).toBe('details')
   })
+  it('preserves a valid return value when its encoded MFA URL is longer than the input policy limit', async () => {
+    const target = '/projects/project-001?filter=' + 'a/b/'.repeat(400)
+    const { container, router } = renderLogin('mfa_pending', target)
+    await submitPassword(container)
+    await screen.findByRole('button', { name: '验证并登录' })
+    expect(router.state.location.pathname).toBe('/mfa/verify')
+    expect(router.state.location.search).toEqual({ redirect: target })
+  })
+
   it('retains the business destination when password login requires MFA enrollment', async () => {
     const target = '/projects/project-001'
     const { container, router } = renderLogin('setup', target)
@@ -63,7 +93,7 @@ describe('product authentication route chain', () => {
     expect(router.state.location.pathname).toBe('/mfa/enroll')
     expect(router.state.location.search).toEqual({ redirect: target })
   })
-  for (const target of ['https://evil.example/landing', '//evil.example/landing', '/'+String.fromCharCode(92)+'evil.example']) {
+  for (const target of ['https://evil.example/landing', '//evil.example/landing', '/'+String.fromCharCode(92)+'evil.example', '/console/..//evil.example/landing', '/projects/../..//evil.example']) {
     it('rejects unsafe destinations before carrying them into MFA: ' + target, async () => {
       const { container, router } = renderLogin('mfa_pending', target)
       await submitPassword(container)
