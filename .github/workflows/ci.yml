@@ -26,6 +26,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.26"
+          cache-dependency-path: apps/api/go.sum
       - name: Configure optional Foundation source authentication
         run: |
           if [ -n "$FOUNDATION_READ_TOKEN" ]; then
@@ -69,6 +70,7 @@ jobs:
           # apps/api/go.mod pins the Foundation module and the CLI in one version; `go tool saasctl`
           # builds exactly that version, so no separate install step and no version variable.
           go-version: "1.26"
+          cache-dependency-path: apps/api/go.sum
       - name: Configure optional Foundation source authentication
         run: |
           if [ -n "$FOUNDATION_READ_TOKEN" ]; then
@@ -76,6 +78,10 @@ jobs:
           else
             echo "Using anonymous access to the public Foundation source repository."
           fi
+      - name: Generate ignored contracts and verify tracked wiring
+        run: |
+          go tool saasctl generate
+          git diff --exit-code
       - name: Migrate the database
         run: go tool saasctl db migrate --yes
       - name: Install a signed CI test license

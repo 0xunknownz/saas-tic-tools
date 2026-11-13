@@ -45,6 +45,12 @@ CI 现在在迁移完成、API 启动之前执行 apps/api/cmd/ci-license。它�
 
 新增命令的测试确认它在非开发 CI 环境、缺少 GITHUB_ENV 时会在连接数据库之前拒绝执行。端到端签名验证和安全套件结果仍由真实 Actions 运行验证。
 
+## 全新 checkout 的生成产物
+
+运行 [43417565490](https://github.com/0xunknownz/saas-tic-tools/actions/runs/43417565490) 的安全套件已通过：88 个 operation、395 个 case，360 PASS、0 FAIL、0 INVALID、35 NOT_APPLICABLE。随后 Release Manifest 构建报告 GEN_DRIFT，因为 .saasctl/openapi/ 下的四个 Foundation 合同是忽略的生成文件，全新 checkout 不包含它们。
+
+security job 现在先执行 go tool saasctl generate 恢复忽略的合同，再以 git diff --exit-code 确认所有已跟踪生成文件未发生漂移，最后仍由原有 build 执行生成一致性校验。没有关闭 GEN_DRIFT 检查。setup-go 的 cache-dependency-path 也改为真实的 apps/api/go.sum，修复根目录不存在 go.sum 导致的缓存警告。
+
 ## 如何判断已修复
 
 api / security 应进入实际 Build / Migrate / Test 步骤；frontend 应通过 pnpm install --frozen-lockfile，再执行 build、typecheck、test。通过认证后若出现编译或测试错误，应按新日志继续修复，不能将其混同为权限问题，也不能跳过检查来制造成功。
