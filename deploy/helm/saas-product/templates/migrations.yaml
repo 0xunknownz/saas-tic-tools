@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "saas-product.planName" . }}
+  annotations:
+    helm.sh/resource-policy: keep
+  labels:
+    {{- include "saas-product.labels" . | nindent 4 }}
+immutable: true
+data:
+  plan.json: {{ required "migration.plan must be populated from the migration plan in a verified release bundle" .Values.migration.plan | quote }}

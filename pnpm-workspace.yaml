@@ -1,0 +1,14 @@
+packages:
+  - apps/admin
+  - apps/tenant-admin
+  - apps/web
+  - packages/*
+# The Foundation packages' postinstall only builds when dist/ is missing (workspace installs);
+# published tarballs ship dist. pnpm still refuses to finish install until builds are approved.
+# allowBuilds is read by pnpm 11+, onlyBuiltDependencies by pnpm 10 (CI).
+allowBuilds:
+  '@0xunknownz/foundation-client': true
+  '@0xunknownz/foundation-tenant-ui': true
+onlyBuiltDependencies:
+  - '@0xunknownz/foundation-client'
+  - '@0xunknownz/foundation-tenant-ui'

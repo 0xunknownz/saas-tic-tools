@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["images", "migration", "secrets", "postgres", "replicaCount"],
+  "properties": {
+    "images": {
+      "type": "object",
+      "required": ["api", "web", "edge", "postgres"],
+      "properties": {
+        "api": { "$ref": "#/definitions/image" },
+        "web": { "$ref": "#/definitions/image" },
+        "edge": { "$ref": "#/definitions/image" },
+        "postgres": { "$ref": "#/definitions/image" }
+      },
+      "additionalProperties": false
+    },
+    "migration": {
+      "type": "object",
+      "required": ["plan"],
+      "properties": {
+        "plan": { "type": "string", "minLength": 2 }
+      },
+      "additionalProperties": false
+    },
+    "secrets": {
+      "type": "object",
+      "required": ["app", "postgres"],
+      "properties": {
+        "app": { "type": "string", "minLength": 1 },
+        "postgres": { "type": "string", "minLength": 1 }
+      },
+      "additionalProperties": false
+    },
+    "replicaCount": {
+      "type": "object",
+      "required": ["api", "worker", "web", "edge"],
+      "properties": {
+        "api": { "type": "integer", "minimum": 1 },
+        "worker": { "type": "integer", "minimum": 1 },
+        "web": { "type": "integer", "minimum": 1 },
+        "edge": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "postgres": {
+      "type": "object",
+      "required": ["database", "username", "persistence"],
+      "properties": {
+        "database": { "type": "string", "minLength": 1 },
+        "username": { "type": "string", "minLength": 1 },
+        "persistence": {
+          "type": "object",
+          "required": ["size"],
+          "properties": {
+            "storageClassName": { "type": "string" },
+            "size": { "type": "string", "pattern": "^[1-9][0-9]*(Mi|Gi|Ti)$" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "image": {
+      "type": "object",
+      "required": ["reference", "pullPolicy"],
+      "properties": {
+        "reference": { "type": "string", "pattern": "^.+@sha256:[a-f0-9]{64}$" },
+        "pullPolicy": { "$ref": "#/definitions/pullPolicy" }
+      },
+      "additionalProperties": false
+    },
+    "pullPolicy": {
+      "type": "string",
+      "enum": ["Always", "IfNotPresent", "Never"]
+    }
+  },
+  "additionalProperties": true
+}

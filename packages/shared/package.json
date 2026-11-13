@@ -1,0 +1,9 @@
+{
+  "name": "saas-tic-tools-shared",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "build": "echo shared: nothing to build",
+    "typecheck": "echo shared: nothing to typecheck"
+  }
+}

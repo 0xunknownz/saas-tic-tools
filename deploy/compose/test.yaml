@@ -1,0 +1,172 @@
+# Single-host TEST environment (PRD AC-027): API, worker, PostgreSQL, Web and the nginx edge.
+# Test data only. Not a production or private-deployment template (see deploy/README.md).
+#
+#   cp deploy/.env.example deploy/.env      # then edit it
+#   go tool saasctl build                           # release/manifest.json + release/migrations/plan.json
+#   docker compose --env-file deploy/.env -f deploy/compose/test.yaml up -d --wait
+#
+# deploy/scripts/up.sh does all three steps and applies "go tool saasctl db migrate" before starting the API.
+name: ${COMPOSE_PROJECT_NAME:-saas-tic-tools-test}
+
+x-app-image: &app-image
+  image: ${API_IMAGE:-saas-tic-tools-api:test}
+  build:
+    context: ../..
+    dockerfile: deploy/docker/api.Dockerfile
+    # Read-only token for the private Foundation module (design 5.3). It is mounted as a BuildKit
+    # secret for the build step only, never stored in a layer or the image. A vendored build needs
+    # no token; the Dockerfile treats the secret as optional.
+    secrets:
+      - foundation_token
+
+# Runtime settings shared by the API and the worker. Every value comes from deploy/.env; the API
+# reads only environment variables (technical design 12.2).
+x-app-env: &app-env
+  APP_ENV: development
+  HTTP_ADDR: ":8080"
+  DATABASE_URL: "postgres://${POSTGRES_USER:?set POSTGRES_USER in deploy/.env}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}@postgres:5432/${POSTGRES_DB:?set POSTGRES_DB in deploy/.env}?sslmode=disable"
+  SECRETS_KEY: "${SECRETS_KEY:?set SECRETS_KEY in deploy/.env (openssl rand -base64 32)}"
+  STORAGE_PROVIDER: "${STORAGE_PROVIDER:-local}"
+  STORAGE_LOCAL_ROOT: /data/objects
+  STORAGE_MAX_FILE_SIZE: "${STORAGE_MAX_FILE_SIZE:-100MB}"
+  NOTIFICATION_PROVIDER: "${NOTIFICATION_PROVIDER:-disabled}"
+  SMTP_HOST: "${SMTP_HOST:-}"
+  SMTP_PORT: "${SMTP_PORT:-587}"
+  SMTP_FROM: "${SMTP_FROM:-}"
+  SMTP_USER: "${SMTP_USER:-}"
+  SMTP_PASSWORD: "${SMTP_PASSWORD:-}"
+  WEB_PUBLIC_URL: "${WEB_PUBLIC_URL:-http://localhost:8080}"
+  ADMIN_PUBLIC_URL: "${ADMIN_PUBLIC_URL:-http://localhost:8080/admin}"
+  TENANT_SELF_SIGNUP: "${TENANT_SELF_SIGNUP:-true}"
+  TENANT_SELF_SERVICE_CREATE: "${TENANT_SELF_SERVICE_CREATE:-false}"
+  # Licence gating state lives in the database; these values enable signature verification for
+  # licence management. The test-license managed block in deploy/.env fills them (#109); a
+  # deployment with its own licence flow sets them instead and test-license.sh then refuses.
+  LICENSE_VERIFICATION_KEYS: "${LICENSE_VERIFICATION_KEYS:-}"
+  LICENSE_INSTANCE_ID: "${LICENSE_INSTANCE_ID:-test-instance}"
+  LICENSE_PRODUCT_VERSION: "${LICENSE_PRODUCT_VERSION:-1.0.0}"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:?set POSTGRES_DB in deploy/.env}"
+      POSTGRES_USER: "${POSTGRES_USER:?set POSTGRES_USER in deploy/.env}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}"
+    ports:
+      # Bound to localhost: the operator needs it for "go tool saasctl admin bootstrap issue" and
+      # "go tool saasctl db migrate". Remove the mapping if those run inside the network instead.
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+
+  # One-shot migration service. The API and worker start only after this exits 0
+  # (condition: service_completed_successfully), so a failed migration blocks the application.
+  migrate:
+    <<: *app-image
+    command: ["/app/migrate", "-plan", "/app/migrations/plan.json"]
+    environment:
+      DATABASE_URL: "postgres://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}?sslmode=disable"
+      MIGRATION_LOCK_TIMEOUT: "${MIGRATION_LOCK_TIMEOUT:-30s}"
+      MIGRATE_ON_START: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    <<: *app-image
+    command: ["/app/api"]
+    environment:
+      <<: *app-env
+    volumes:
+      - storage:/data/objects
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 3s
+      start_period: 20s
+      retries: 5
+    stop_grace_period: 30s
+    restart: unless-stopped
+
+  worker:
+    <<: *app-image
+    command: ["/app/worker"]
+    environment:
+      <<: *app-env
+    volumes:
+      - storage:/data/objects
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    stop_grace_period: 30s
+    restart: unless-stopped
+
+  web:
+    image: ${WEB_IMAGE:-saas-tic-tools-web:test}
+    build:
+      context: ../..
+      dockerfile: deploy/docker/web.Dockerfile
+      secrets:
+        - npm_token
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOST: 0.0.0.0
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      start_period: 20s
+      retries: 5
+    restart: unless-stopped
+
+  edge:
+    image: ${EDGE_IMAGE:-saas-tic-tools-edge:test}
+    build:
+      context: ../..
+      dockerfile: deploy/docker/edge.Dockerfile
+      secrets:
+        - npm_token
+    ports:
+      - "${HTTP_PORT:-8080}:8080"
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/healthz >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  storage:
+
+secrets:
+  foundation_token:
+    environment: FOUNDATION_READ_TOKEN
+  # Read-only GitHub Packages token for the Foundation npm scope (design 4.2/5.3). Build-time only.
+  npm_token:
+    environment: NODE_AUTH_TOKEN

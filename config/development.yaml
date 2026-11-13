@@ -1,0 +1,12 @@
+# Local development settings read by `go tool saasctl dev up`. Contains no secrets:
+# the database password is generated into .saasctl/dev.env on first run.
+ports:
+  api: 18080
+  admin: 15173
+  web: 13000
+  tenantAdmin: 13001
+  postgres: 15432
+
+database:
+  name: saas_tic_tools
+  user: saas_tic_tools

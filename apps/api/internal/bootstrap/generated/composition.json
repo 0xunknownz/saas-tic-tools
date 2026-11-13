@@ -1,0 +1,238 @@
+{
+  "generatedBy": "saasctl 0.2.1",
+  "digest": "2242b53283065c157b092daa53071931b92dd28a014c6daf2a668df6279d2073",
+  "plugins": [
+    {
+      "id": "foundation.db",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/db",
+      "dependencies": [],
+      "manifestSha256": "e00f8555da9977c500b9ad06a1e9910bcff5a32bec8b9e117c62736e8822a44a"
+    },
+    {
+      "id": "foundation.audit",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/audit",
+      "dependencies": [
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "7a45fa8336149eec857d7d67acd773366e66b5b4146a1fb84865e63a1db59a1e"
+    },
+    {
+      "id": "foundation.entitlement",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/entitlement",
+      "dependencies": [
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "2a19292cea51959409e3440cd25e865af567088ec5b19bca68bcfc35d6b6668d"
+    },
+    {
+      "id": "foundation.notification",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/notification",
+      "dependencies": [
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "b7b75093e9a419e078212d006d7a3da11537156af6dc8dd7b25be5a8c0dbe1c7"
+    },
+    {
+      "id": "foundation.identity",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/identity",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.notification",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "24b0c5a02076a76193f82680a2d67cb7e0fef709b8824fafe37d2592b19e0d25"
+    },
+    {
+      "id": "foundation.jobs",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/jobs",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.identity",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "5891f1a00b7bd17d69434a8ccedc865d46b4674c8153cfc46039d142e62adff0"
+    },
+    {
+      "id": "foundation.license",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/license",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.identity",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "fb4c558d582b8e6346d8954b871c07c3c54564f5f217a8c550e03aed2fd0dd88"
+    },
+    {
+      "id": "foundation.tenant",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/tenant",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.identity",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.notification",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "5fb7f04b45c0b555f270c3b78f987eee1652fca36578a401bdbc25033b3c0014"
+    },
+    {
+      "id": "foundation.authorization",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/authorization",
+      "dependencies": [
+        {
+          "id": "foundation.tenant",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "4b1a3142e66de681474d578530accc868f6ee183337998623390278a069209e7"
+    },
+    {
+      "id": "foundation.billing",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/billing",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.entitlement",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.tenant",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "7de1402652678fbefaa4e93ce23b119414ab8cfde5a80cd9eb391a0ba6c46123"
+    },
+    {
+      "id": "foundation.storage",
+      "version": "1.0.0",
+      "contractVersion": 1,
+      "package": "github.com/0xunknownz/saas.starter/foundation/storage",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.identity",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.tenant",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "3bffc56967dcecc7944de429d4b1a3574e11f58864d138d307f4ceec029d58fc"
+    },
+    {
+      "id": "product.example",
+      "version": "0.1.0",
+      "contractVersion": 1,
+      "package": "saas-tic-tools/apps/api/internal/business/example",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "c2b7592d15a001cf5745a9d8ba9ff20d80cdb891f9173d342aa950423877b0c5"
+    },
+    {
+      "id": "product.testitems",
+      "version": "0.1.0",
+      "contractVersion": 1,
+      "package": "saas-tic-tools/apps/api/internal/business/testitems",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.identity",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "f9fd35b4cc7355a64b3c497ff7f3db4053fc0a787c5da66fe6ddb6bf7999aa74"
+    }
+  ]
+}

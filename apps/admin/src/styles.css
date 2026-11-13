@@ -1,0 +1,5 @@
+/* Product style entry. Foundation Platform UI owns the tokens and component styles; the published
+   npm package ships its components as a bundle under dist/, so Tailwind must scan that bundle as well
+   (design 4.3). Paths are relative to this file, which lives in apps/admin/src/. */
+@import "@0xunknownz/foundation-platform-ui/styles.css";
+@source "../node_modules/@0xunknownz/foundation-platform-ui/dist";

@@ -1,0 +1,106 @@
+{{ range $name := list "api" "worker" "web" "edge" }}
+{{ $image := $.Values.images.api }}
+{{ if ne $name "worker" }}
+{{ $image = index $.Values.images $name }}
+{{ end }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels:
+    {{- include "saas-product.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $name }}
+spec:
+  replicas: {{ index $.Values.replicaCount $name }}
+  selector:
+    matchLabels:
+      {{- include "saas-product.selectorLabels" $ | nindent 6 }}
+      app.kubernetes.io/component: {{ $name }}
+  template:
+    metadata:
+      labels:
+        {{- include "saas-product.selectorLabels" $ | nindent 8 }}
+        app.kubernetes.io/component: {{ $name }}
+      annotations:
+        helm.sh/revision: {{ $.Release.Revision | quote }}
+    spec:
+      imagePullSecrets:
+        {{- toYaml $.Values.imagePullSecrets | nindent 8 }}
+      {{- if or (eq $name "api") (eq $name "worker") }}
+      initContainers:
+        - name: wait-for-postgres
+          image: {{ required "images.postgres.reference is required and must match the release inventory digest" $.Values.images.postgres.reference | quote }}
+          imagePullPolicy: {{ $.Values.images.postgres.pullPolicy }}
+          env:
+            - { name: PGHOST, value: postgres }
+            - { name: PGPORT, value: "5432" }
+            - { name: PGUSER, value: {{ $.Values.postgres.username | quote }} }
+            - { name: PGDATABASE, value: {{ $.Values.postgres.database | quote }} }
+          command: ["sh", "-ec", "until pg_isready; do sleep 2; done"]
+        - name: migrate
+          image: {{ required "images.api.reference is required and must match the release inventory digest" $.Values.images.api.reference | quote }}
+          imagePullPolicy: {{ $.Values.images.api.pullPolicy }}
+          command: ["/app/migrate", "-plan", "/app/migrations/plan.json"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.app | quote }}
+                  key: DATABASE_URL
+          volumeMounts:
+            - name: migration-plan
+              mountPath: /app/migrations
+              readOnly: true
+      volumes:
+        - name: migration-plan
+          configMap:
+            name: {{ include "saas-product.planName" $ }}
+      {{- end }}
+      containers:
+        - name: {{ $name }}
+          image: {{ required (printf "images.%s.reference is required and must match the release inventory digest" $name) $image.reference | quote }}
+          imagePullPolicy: {{ $image.pullPolicy }}
+          {{- if or (eq $name "api") (eq $name "worker") }}
+          command: ["/app/{{ $name }}"]
+          envFrom:
+            - configMapRef: { name: saas-config }
+          env:
+            {{- range $key := list "DATABASE_URL" "SECRETS_KEY" "S3_ACCESS_KEY_ID" "S3_ACCESS_KEY_SECRET" "SMTP_USER" "SMTP_PASSWORD" "LICENSE_VERIFICATION_KEYS" "LICENSE_PRODUCT_VERSION" "LICENSE_INSTANCE_ID" "BILLING_WEBHOOK_SECRET" }}
+            - name: {{ $key }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.secrets.app | quote }}
+                  key: {{ $key }}
+                  optional: {{ if or (eq $key "DATABASE_URL") (eq $key "SECRETS_KEY") }}false{{ else }}true{{ end }}
+            {{- end }}
+          {{- if eq $name "api" }}
+          ports:
+            - { name: http, containerPort: 8080, protocol: TCP }
+          readinessProbe:
+            httpGet: { path: /readyz, port: http }
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: { path: /healthz, port: http }
+            periodSeconds: 20
+          {{- end }}
+          {{- else if eq $name "web" }}
+          env:
+            - { name: NODE_ENV, value: production }
+            - { name: PORT, value: "3000" }
+            - { name: HOST, value: 0.0.0.0 }
+          ports:
+            - { name: http, containerPort: 3000, protocol: TCP }
+          {{- else }}
+          ports:
+            - { name: http, containerPort: 8080, protocol: TCP }
+          {{- end }}
+          resources:
+            {{- toYaml (index $.Values.resources $name) | nindent 12 }}
+      nodeSelector:
+        {{- toYaml $.Values.nodeSelector | nindent 8 }}
+      tolerations:
+        {{- toYaml $.Values.tolerations | nindent 8 }}
+      affinity:
+        {{- toYaml $.Values.affinity | nindent 8 }}
+{{- end }}

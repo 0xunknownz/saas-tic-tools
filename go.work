@@ -1,0 +1,6 @@
+go 1.26.0
+
+// The Product root is a Go workspace so `go tool saasctl` runs from here (the module that pins the
+// CLI is apps/api, docs/foundation-modularization.md 5). Relative paths on the command line keep
+// meaning the Product root, as before the Foundation moved into packages.
+use ./apps/api

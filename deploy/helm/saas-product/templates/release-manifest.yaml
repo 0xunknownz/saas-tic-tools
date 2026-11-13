@@ -1,0 +1,10 @@
+{{- if .Values.release.manifest }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: release-manifest
+  labels:
+    {{- include "saas-product.labels" . | nindent 4 }}
+data:
+  manifest.json: {{ .Values.release.manifest | quote }}
+{{- end }}

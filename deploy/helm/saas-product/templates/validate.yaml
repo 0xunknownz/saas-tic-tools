@@ -1,0 +1,3 @@
+{{- if and .Release.IsUpgrade (not .Values.upgrade.allow) -}}
+{{- fail "HELM_UPGRADE_UNAVAILABLE: set upgrade.allow=true only after draining API/Worker, taking and verifying a quiesced backup, and planning database recovery" -}}
+{{- end -}}

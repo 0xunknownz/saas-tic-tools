@@ -1,0 +1,4 @@
+/* Product style entry; Foundation Tenant UI owns its tokens and page styles. The published package
+   ships dist/ (not its source), so Tailwind must scan the bundle explicitly. */
+@import "@0xunknownz/foundation-tenant-ui/styles.css";
+@source "../../node_modules/@0xunknownz/foundation-tenant-ui/dist";

@@ -1,0 +1,831 @@
+{
+  "$comment": "Product fixture for the Foundation security test suite (technical design 17.10). Foundation creates the sessions, accounts and one-time credentials; a Product only declares the legal request per operation plus the seed data its own endpoints need.",
+  "foundation": {
+    "platform": {
+      "email": "security-platform@example.test",
+      "password": "a long security suite passphrase 1"
+    },
+    "platformWithoutPermission": {
+      "email": "security-noperm@example.test",
+      "password": "a long security suite passphrase 2"
+    },
+    "tenants": {
+      "A": {
+        "slug": "security-a",
+        "name": "Security A",
+        "admin": {
+          "email": "security-a-admin@example.test",
+          "password": "a long security suite passphrase 3"
+        },
+        "member": {
+          "email": "security-a-member@example.test",
+          "password": "a long security suite passphrase 4"
+        },
+        "extras": [
+          {
+            "email": "security-a-extra0@example.test",
+            "password": "a long security suite passphrase 5"
+          },
+          {
+            "email": "security-a-extra1@example.test",
+            "password": "a long security suite passphrase 6"
+          },
+          {
+            "email": "security-a-extra2@example.test",
+            "password": "a long security suite passphrase 7"
+          },
+          {
+            "email": "security-a-extra3@example.test",
+            "password": "a long security suite passphrase 8"
+          },
+          {
+            "email": "security-a-extra4@example.test",
+            "password": "a long security suite passphrase 9"
+          },
+          {
+            "email": "security-a-extra5@example.test",
+            "password": "a long security suite passphrase 10"
+          },
+          {
+            "email": "security-a-extra6@example.test",
+            "password": "a long security suite passphrase 11"
+          }
+        ]
+      },
+      "B": {
+        "slug": "security-b",
+        "name": "Security B",
+        "admin": {
+          "email": "security-b-admin@example.test",
+          "password": "a long security suite passphrase 12"
+        },
+        "extras": [
+          {
+            "email": "security-b-extra0@example.test",
+            "password": "a long security suite passphrase 13"
+          }
+        ]
+      }
+    }
+  },
+  "seeds": [
+    {
+      "name": "pendingPlatformAccount",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/admin/v1/platform-accounts",
+      "json": {
+        "email": "security-${run}-pending@example.test",
+        "roles": []
+      },
+      "capture": {
+        "pendingPlatformAccountId": "body.id"
+      }
+    },
+    {
+      "name": "pendingPlatformAdmin",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/admin/v1/platform-admins",
+      "json": {
+        "email": "security-${run}-admin@example.test",
+        "roles": []
+      },
+      "capture": {
+        "pendingPlatformAdminId": "body.id"
+      }
+    },
+    {
+      "name": "activationToken",
+      "kind": "outbox",
+      "template": "platform_activation",
+      "recipient": "security-${run}-pending@example.test",
+      "capture": {
+        "activationToken": "field.token"
+      }
+    },
+    {
+      "name": "activationBegin",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/admin/v1/platform-accounts",
+      "json": {
+        "email": "security-${run}-confirm@example.test",
+        "roles": []
+      },
+      "capture": {
+        "confirmAccountId": "body.id"
+      }
+    },
+    {
+      "name": "activationConfirmToken",
+      "kind": "outbox",
+      "template": "platform_activation",
+      "recipient": "security-${run}-confirm@example.test",
+      "capture": {
+        "confirmActivationToken": "field.token"
+      }
+    },
+    {
+      "name": "activationEnrollment",
+      "method": "POST",
+      "path": "/api/admin/activation/begin",
+      "json": {
+        "token": "${confirmActivationToken}",
+        "password": "a long security suite passphrase 14"
+      },
+      "capture": {
+        "activationEnrollment": "body.enrollment",
+        "activationSeed": "body.seed"
+      }
+    },
+    {
+      "name": "activeAdmin",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/admin/v1/platform-admins",
+      "json": {
+        "email": "security-${run}-active@example.test",
+        "roles": []
+      },
+      "capture": {
+        "activePlatformAdminId": "body.id"
+      }
+    },
+    {
+      "name": "activeAdminToken",
+      "kind": "outbox",
+      "template": "platform_activation",
+      "recipient": "security-${run}-active@example.test",
+      "capture": {
+        "activeAdminToken": "field.token"
+      }
+    },
+    {
+      "name": "activeAdminBegin",
+      "method": "POST",
+      "path": "/api/admin/activation/begin",
+      "json": {
+        "token": "${activeAdminToken}",
+        "password": "a long security suite passphrase 19"
+      },
+      "capture": {
+        "activeAdminEnrollment": "body.enrollment",
+        "activeAdminSeed": "body.seed"
+      }
+    },
+    {
+      "name": "activeAdminConfirm",
+      "method": "POST",
+      "path": "/api/admin/activation/confirm",
+      "json": {
+        "enrollment": "${activeAdminEnrollment}",
+        "code": "${totp:activeAdminSeed}"
+      }
+    },
+    {
+      "name": "registerTenant",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/admin/v1/tenants",
+      "json": {
+        "slug": "security-reg-${run}",
+        "name": "Security register",
+        "adminEmail": "security-${run}-register@example.test"
+      },
+      "capture": {
+        "registerInvitationId": "body.invitationId",
+        "registerCode": "body.verificationCode"
+      }
+    },
+    {
+      "name": "registerToken",
+      "kind": "outbox",
+      "key": "invitation:${registerInvitationId}",
+      "capture": {
+        "registerToken": "field.token"
+      }
+    },
+    {
+      "name": "onboardTenant",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/admin/v1/tenants",
+      "json": {
+        "slug": "security-onboard-${run}",
+        "name": "Security onboarding",
+        "adminEmail": "security-${run}-onboard@example.test"
+      },
+      "capture": {
+        "onboardTenantId": "body.id"
+      }
+    },
+    {
+      "name": "statusTenant",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/admin/v1/tenants",
+      "json": {
+        "slug": "security-status-${run}",
+        "name": "Security status",
+        "adminEmail": "security-${run}-status@example.test"
+      },
+      "capture": {
+        "statusTenantId": "body.id"
+      }
+    },
+    {
+      "name": "statusTenantRevision",
+      "session": "platform",
+      "method": "GET",
+      "path": "/api/admin/v1/tenants/${statusTenantId}",
+      "capture": {
+        "statusTenantRevision": "body.revision"
+      }
+    },
+    {
+      "name": "statusChange",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${statusTenantId}/status",
+      "json": {
+        "to": "frozen",
+        "reason": "security suite",
+        "expectedRevision": "${int:statusTenantRevision}",
+        "operationId": "${run}-status"
+      }
+    },
+    {
+      "name": "fileRead",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/files",
+      "body": "security suite read",
+      "headers": {
+        "X-File-Name": "security-read.txt"
+      },
+      "capture": {
+        "fileReadId": "body.id"
+      }
+    },
+    {
+      "name": "fileDelete",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/files",
+      "body": "security suite delete",
+      "headers": {
+        "X-File-Name": "security-delete.txt"
+      },
+      "capture": {
+        "fileDeleteId": "body.id"
+      }
+    },
+    {
+      "name": "fileLink",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/files",
+      "body": "security suite link",
+      "headers": {
+        "X-File-Name": "security-link.txt"
+      },
+      "capture": {
+        "fileLinkId": "body.id"
+      }
+    },
+    {
+      "name": "fileLinkURL",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/files/${fileLinkId}/download-url",
+      "json": {},
+      "capture": {
+        "fileLinkPath": "body.url"
+      }
+    },
+    {
+      "name": "productItemRevision",
+      "session": "platform",
+      "method": "GET",
+      "path": "/api/product-admin/v1/test-items/ti-004",
+      "capture": {
+        "productItemRevision": "body.revision"
+      }
+    }
+  ],
+  "sessions": {},
+  "operations": {
+    "adminAuthState": {
+      "method": "GET",
+      "path": "/api/admin/auth/state"
+    },
+    "adminSessionInfo": {
+      "method": "GET",
+      "path": "/api/admin/auth/session",
+      "session": "platform"
+    },
+    "adminMe": {
+      "method": "GET",
+      "path": "/api/admin/me"
+    },
+    "redeemBootstrap": {
+      "method": "POST",
+      "path": "/api/admin/bootstrap/redeem",
+      "skip": "the bootstrap entry closes once the platform is initialised, and the suite initialises it to build every other session; the entry is covered by IDF-22 in the M2 suite"
+    },
+    "setBootstrapPassword": {
+      "method": "POST",
+      "path": "/api/admin/bootstrap/password",
+      "skip": "only reachable from the bootstrap restricted session, which exists before the platform is initialised; covered by IDF-22 in the M2 suite"
+    },
+    "completeBootstrap": {
+      "method": "POST",
+      "path": "/api/admin/bootstrap/complete",
+      "skip": "only reachable from the bootstrap restricted session, which exists before the platform is initialised; covered by IDF-22 in the M2 suite"
+    },
+    "adminLogin": {
+      "method": "POST",
+      "path": "/api/admin/auth/login",
+      "json": {
+        "email": "${platformEmail}",
+        "password": "${platformPassword}"
+      },
+      "invalid": {
+        "email": "${platformEmail}",
+        "password": "wrong password for the suite"
+      }
+    },
+    "verifyAdminMFA": {
+      "method": "POST",
+      "path": "/api/admin/auth/mfa/verify",
+      "session": "platformPending",
+      "json": {
+        "code": "${totp:platformTOTP}"
+      }
+    },
+    "startMFAEnrollment": {
+      "method": "POST",
+      "path": "/api/admin/auth/mfa/enroll/start",
+      "skip": "needs a setup session (credential reset); the bootstrap flow binds MFA before the first full sign-in and IDF-10/IDF-19 cover the reset flows"
+    },
+    "completeMFAEnrollment": {
+      "method": "POST",
+      "path": "/api/admin/auth/mfa/enroll/complete",
+      "skip": "needs a setup session (credential reset), covered by IDF-10/IDF-19"
+    },
+    "adminLogout": {
+      "method": "POST",
+      "path": "/api/admin/auth/logout",
+      "session": "platformLogout",
+      "csrfSession": "platform"
+    },
+    "requestAdminPasswordReset": {
+      "method": "POST",
+      "path": "/api/admin/auth/password/request",
+      "json": {
+        "email": "security-${run}-nobody@example.test"
+      }
+    },
+    "confirmAdminPasswordReset": {
+      "method": "POST",
+      "path": "/api/admin/auth/password/reset",
+      "skip": "a successful reset ends every platform session the suite uses; the reset flow is covered by the M2 credential-reset tests (IDF-10, IDF-24)"
+    },
+    "redeemRecovery": {
+      "method": "POST",
+      "path": "/api/admin/recovery/redeem",
+      "skip": "a recovery credential ends the administrator's sessions; the recovery flow is covered by the M2 recovery tests (IDF-22)"
+    },
+    "createPlatformAccount": {
+      "method": "POST",
+      "path": "/api/admin/v1/platform-accounts",
+      "json": {
+        "email": "security-${run}-created@example.test",
+        "roles": []
+      }
+    },
+    "resendActivation": {
+      "method": "POST",
+      "path": "/api/admin/v1/platform-accounts/${pendingPlatformAccountId}/resend-activation"
+    },
+    "beginActivation": {
+      "method": "POST",
+      "path": "/api/admin/activation/begin",
+      "fresh": {
+        "token": "${activationToken}",
+        "password": "a long security suite passphrase 16"
+      }
+    },
+    "confirmActivation": {
+      "method": "POST",
+      "path": "/api/admin/activation/confirm",
+      "fresh": {
+        "enrollment": "${activationEnrollment}",
+        "code": "${totp:activationSeed}"
+      }
+    },
+    "listPlatformAdmins": {
+      "method": "GET",
+      "path": "/api/admin/v1/platform-admins"
+    },
+    "createPlatformAdmin": {
+      "method": "POST",
+      "path": "/api/admin/v1/platform-admins",
+      "json": {
+        "email": "security-${run}-admin2@example.test",
+        "roles": [
+          "ops_admin"
+        ]
+      }
+    },
+    "getPlatformAdmin": {
+      "method": "GET",
+      "path": "/api/admin/v1/platform-admins/${activePlatformAdminId}"
+    },
+    "setPlatformAdminStatus": {
+      "method": "POST",
+      "path": "/api/admin/v1/platform-admins/${activePlatformAdminId}/status",
+      "json": {
+        "status": "disabled",
+        "reason": "security suite"
+      }
+    },
+    "resetPlatformAdminMFA": {
+      "method": "POST",
+      "path": "/api/admin/v1/platform-admins/${activePlatformAdminId}/reset-mfa",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "resendPlatformAdminActivation": {
+      "method": "POST",
+      "path": "/api/admin/v1/platform-admins/${pendingPlatformAdminId}/resend-activation"
+    },
+    "listProductTestItems": {
+      "method": "GET",
+      "path": "/api/product-admin/v1/test-items"
+    },
+    "getProductTestItem": {
+      "method": "GET",
+      "path": "/api/product-admin/v1/test-items/ti-001"
+    },
+    "updateProductTestItem": {
+      "method": "PUT",
+      "path": "/api/product-admin/v1/test-items/ti-004",
+      "json": {
+        "name": "Security suite edited sample",
+        "category": "Environmental testing",
+        "method": "Gravimetric",
+        "description": "Product security suite legal edit baseline",
+        "expectedRevision": "${int:productItemRevision}"
+      }
+    },
+    "listJobs": {
+      "method": "GET",
+      "path": "/api/admin/v1/jobs"
+    },
+    "retryJob": {
+      "method": "POST",
+      "path": "/api/admin/v1/jobs/${run}-no-such-job/retry",
+      "skip": "no failed job can be produced through the product API in this fixture; jobs are covered by the M2 queue tests (IDF-04)"
+    },
+    "tenantLogin": {
+      "method": "POST",
+      "path": "/api/tenant/auth/login",
+      "json": {
+        "Email": "${tenantAEmail}",
+        "Password": "${tenantAPassword}"
+      },
+      "invalid": {
+        "Email": "${tenantAEmail}",
+        "Password": "wrong password for the suite"
+      }
+    },
+    "tenantLogout": {
+      "method": "POST",
+      "path": "/api/tenant/auth/logout",
+      "session": "tenantLogout",
+      "csrfSession": "tenantA"
+    },
+    "tenantMe": {
+      "method": "GET",
+      "path": "/api/tenant/me"
+    },
+    "switchTenant": {
+      "method": "POST",
+      "path": "/api/tenant/v1/session/tenant",
+      "json": {
+        "tenantId": "${tenantAId}"
+      }
+    },
+    "listTenantMembers": {
+      "method": "GET",
+      "path": "/api/tenant/v1/members"
+    },
+    "acceptInvitation": {
+      "method": "POST",
+      "path": "/api/tenant/v1/invitations/accept",
+      "skip": "needs a pending invitation addressed to the signed-in account; the invitation register flow is covered by registerAndAcceptInvitation and the M2 invitation tests"
+    },
+    "registerAndAcceptInvitation": {
+      "method": "POST",
+      "path": "/api/tenant/v1/invitations/register",
+      "fresh": {
+        "token": "${registerToken}",
+        "password": "a long security suite passphrase 17",
+        "verificationCode": "${registerCode}"
+      }
+    },
+    "uploadTenantFile": {
+      "method": "POST",
+      "path": "/api/tenant/v1/files",
+      "body": "security suite upload",
+      "headers": {
+        "X-File-Name": "security-upload.txt"
+      }
+    },
+    "downloadTenantFile": {
+      "method": "GET",
+      "path": "/api/tenant/v1/files/${fileReadId}"
+    },
+    "deleteTenantFile": {
+      "method": "DELETE",
+      "path": "/api/tenant/v1/files/${fileDeleteId}",
+      "json": {
+        "reason": "security suite cleanup"
+      }
+    },
+    "verifyTenantMFA": {
+      "method": "POST",
+      "path": "/api/tenant/auth/mfa/verify",
+      "skip": "needs an mfa_pending tenant session; tenant MFA is covered by the M2 MFA tests (IDF-10, IDF-20)"
+    },
+    "startTenantMFAEnrollment": {
+      "method": "POST",
+      "path": "/api/tenant/auth/mfa/enroll/start",
+      "skip": "needs a setup session; tenant MFA is covered by the M2 MFA tests"
+    },
+    "completeTenantMFAEnrollment": {
+      "method": "POST",
+      "path": "/api/tenant/auth/mfa/enroll/complete",
+      "skip": "needs a setup session; tenant MFA is covered by the M2 MFA tests"
+    },
+    "requestTenantPasswordReset": {
+      "method": "POST",
+      "path": "/api/tenant/auth/password/request",
+      "json": {
+        "email": "${tenantAEmail}"
+      }
+    },
+    "confirmTenantPasswordReset": {
+      "method": "POST",
+      "path": "/api/tenant/auth/password/reset",
+      "skip": "a successful reset ends the tenant sessions the suite uses; covered by the M2 credential-reset tests"
+    },
+    "tenantSignUp": {
+      "method": "POST",
+      "path": "/api/tenant/auth/signup",
+      "skip": "self-service sign-up is disabled while the email provider is off (the CI profile delivers to the outbox only); the M2 sign-up tests cover it with a provider"
+    },
+    "verifyTenantEmail": {
+      "method": "POST",
+      "path": "/api/tenant/auth/verify-email",
+      "skip": "self-service sign-up is disabled while the email provider is off, so no verification link exists; the M2 sign-up tests cover it with a provider"
+    },
+    "createOwnTenant": {
+      "method": "POST",
+      "path": "/api/tenant/v1/tenants",
+      "skip": "self-service tenant creation is off in product.yaml by default; enabling it would change product behaviour"
+    },
+    "issueTenantFileDownloadURL": {
+      "method": "POST",
+      "path": "/api/tenant/v1/files/${fileLinkId}/download-url",
+      "json": {}
+    },
+    "downloadTenantFileByLink": {
+      "method": "GET",
+      "path": "${fileLinkPath}"
+    },
+    "inviteTenantMember": {
+      "method": "POST",
+      "path": "/api/tenant/v1/invitations",
+      "json": {
+        "email": "security-${run}-invite@example.test"
+      }
+    },
+    "resetOwnTenantMemberMFA": {
+      "method": "POST",
+      "path": "/api/tenant/v1/members/${tenantAExtra1AccountId}/reset-mfa",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "sendOwnTenantMemberPasswordReset": {
+      "method": "POST",
+      "path": "/api/tenant/v1/members/${tenantAExtra2AccountId}/send-password-reset",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "listTenants": {
+      "method": "GET",
+      "path": "/api/admin/v1/tenants"
+    },
+    "getTenant": {
+      "method": "GET",
+      "path": "/api/admin/v1/tenants/${tenantAId}"
+    },
+    "setTenantStatus": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${statusTenantId}/status",
+      "json": {
+        "to": "frozen",
+        "reason": "security suite",
+        "expectedRevision": "${int:statusTenantRevision}",
+        "operationId": "${run}-status"
+      }
+    },
+    "getTenantStatusOperation": {
+      "method": "GET",
+      "path": "/api/admin/v1/tenants/${statusTenantId}/status-operations/${run}-status"
+    },
+    "inviteFirstTenantAdmin": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${onboardTenantId}/first-admin-invitations",
+      "json": {
+        "email": "security-${run}-first@example.test"
+      }
+    },
+    "resetTenantMemberMFA": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${tenantAId}/members/${tenantAExtra1AccountId}/reset-mfa",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "sendTenantMemberPasswordReset": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${tenantAId}/members/${tenantAExtra2AccountId}/send-password-reset",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "issueTenantMemberPasswordResetLink": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${tenantAId}/members/${tenantAExtra2AccountId}/password-reset-link",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "listUsers": {
+      "method": "GET",
+      "path": "/api/admin/v1/users"
+    },
+    "getUser": {
+      "method": "GET",
+      "path": "/api/admin/v1/users/${tenantAExtra2AccountId}"
+    },
+    "setUserStatus": {
+      "method": "POST",
+      "path": "/api/admin/v1/users/${tenantAExtra3AccountId}/status",
+      "json": {
+        "status": "disabled",
+        "reason": "security suite"
+      }
+    },
+    "resetUserMFA": {
+      "method": "POST",
+      "path": "/api/admin/v1/users/${tenantAExtra4AccountId}/reset-mfa",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "adminSessionContext": {
+      "method": "GET",
+      "path": "/api/admin/v1/session"
+    },
+    "getGeneralSettings": { "method": "GET", "path": "/api/admin/v1/settings/general" },
+    "updateGeneralSettings": { "method": "PUT", "path": "/api/admin/v1/settings/general", "json": { "displayName": "SaaS", "expectedRevision": 1 } },
+    "getProviderConfigurationStatus": {
+      "method": "GET",
+      "path": "/api/admin/v1/settings/providers"
+    },
+    "listAuditLog": {
+      "method": "GET",
+      "path": "/api/admin/v1/audit"
+    },
+    "getAuditRecord": {
+      "method": "GET",
+      "path": "/api/admin/v1/audit/1"
+    },
+    "exportAuditLog": {
+      "method": "GET",
+      "path": "/api/admin/v1/audit/export"
+    },
+    "grantPlatformAdminRole": {
+      "method": "POST",
+      "path": "/api/admin/v1/platform-admins/${activePlatformAdminId}/roles",
+      "json": {
+        "role": "ops_admin",
+        "reason": "security suite"
+      }
+    },
+    "issueManualFirstAdminInvitation": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${onboardTenantId}/first-admin-invitations/manual",
+      "json": {
+        "email": "security-${run}-first2@example.test"
+      }
+    },
+    "issueManualMemberInvitation": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${tenantBId}/invitations/manual",
+      "json": {
+        "email": "security-${run}-manual2@example.test",
+        "role": "member"
+      }
+    },
+    "issueManualTenantInvitation": {
+      "method": "POST",
+      "path": "/api/tenant/v1/invitations/manual",
+      "json": {
+        "email": "security-${run}-manual@example.test",
+        "role": "member"
+      }
+    },
+    "listMyTenants": {
+      "method": "GET",
+      "path": "/api/tenant/v1/tenants"
+    },
+    "listTenantMembersForAdmin": {
+      "method": "GET",
+      "path": "/api/admin/v1/tenants/${tenantAId}/members"
+    },
+    "getPermissionCatalog": {
+      "method": "GET",
+      "path": "/api/admin/v1/permissions"
+    },
+    "issuePlatformAdminPasswordResetLink": {
+      "method": "POST",
+      "path": "/api/admin/v1/platform-admins/${activePlatformAdminId}/password-reset-link",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "revokePlatformAdminRole": {
+      "method": "DELETE",
+      "path": "/api/admin/v1/platform-admins/${activePlatformAdminId}/roles/ops_admin?reason=security-suite"
+    },
+    "tenantSessionContext": {
+      "method": "GET",
+      "path": "/api/tenant/v1/session"
+    },
+    "issueUserPasswordResetLink": {
+      "method": "POST",
+      "path": "/api/admin/v1/users/${tenantAExtra5AccountId}/password-reset-link",
+      "json": {
+        "reason": "security suite"
+      }
+    },
+    "setOwnTenantMemberRole": {
+      "method": "POST",
+      "path": "/api/tenant/v1/members/${tenantAExtra0AccountId}/role",
+      "json": {
+        "role": "member"
+      }
+    },
+    "removeOwnTenantMember": {
+      "method": "DELETE",
+      "path": "/api/tenant/v1/members/${tenantAExtra6AccountId}"
+    },
+    "setTenantMemberRole": {
+      "method": "PUT",
+      "path": "/api/admin/v1/tenants/${tenantBId}/members/${tenantBExtra0AccountId}/role",
+      "json": {
+        "role": "member"
+      }
+    },
+    "removeTenantMember": {
+      "method": "DELETE",
+      "path": "/api/admin/v1/tenants/${tenantAId}/members/${tenantAExtra5AccountId}"
+    },
+    "inviteTenantMemberForAdmin": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants/${tenantBId}/invitations",
+      "json": {
+        "email": "security-${run}-member@example.test",
+        "role": "member"
+      }
+    },
+    "createTenant": {
+      "method": "POST",
+      "path": "/api/admin/v1/tenants",
+      "json": {
+        "slug": "security-${run}-created",
+        "name": "Security created",
+        "adminEmail": "security-${run}-created@example.test"
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+schemaVersion: "1"
+
+product:
+  id: saas-tic-tools
+  name: "Saas Tic Tools"
+
+stack:
+  backend: go
+  web: tanstack-start
+  admin: foundation-admin
+  database: postgresql
+
+foundation:
+  modules:
+    - id: audit
+    - id: authorization
+    - id: billing
+    - id: entitlement
+    - id: identity
+    - id: jobs
+    - id: license
+    - id: notification
+    - id: storage
+    - id: tenant
+
+admin:
+  enabled: true
+
+deployment:
+  supportedModes:
+    - saas
+  defaultMode: saas
+  identity:
+    providers:
+      - local

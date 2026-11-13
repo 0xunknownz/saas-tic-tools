@@ -1,0 +1,19 @@
+id: product.example
+version: 0.1.0
+contractVersion: 1
+package: "saas-tic-tools/apps/api/internal/business/example"
+
+dependencies:
+  - id: audit
+    version: "^1.0.0"
+
+capabilities:
+  - example.greeting.v1
+
+configSchema: "./config.schema.json"
+permissions:
+  - tenant.product.example.read
+
+entries:
+  service: NewService
+  http: RegisterHTTP

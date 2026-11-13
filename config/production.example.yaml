@@ -1,0 +1,2 @@
+# Example only. Provide real values through your deployment system; never commit secrets.
+# API environment variables: APP_ENV=production, HTTP_ADDR, DATABASE_URL.

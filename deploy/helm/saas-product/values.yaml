@@ -1,0 +1,43 @@
+imagePullSecrets: []
+images:
+  api: { reference: "", pullPolicy: IfNotPresent }
+  web: { reference: "", pullPolicy: IfNotPresent }
+  edge: { reference: "", pullPolicy: IfNotPresent }
+  postgres: { reference: "", pullPolicy: IfNotPresent }
+replicaCount: { api: 1, worker: 1, web: 1, edge: 1 }
+release:
+  manifest: ""
+migration:
+  plan: ""
+secrets:
+  app: ""
+  postgres: ""
+config:
+  webPublicURL: ""
+  adminPublicURL: ""
+  storageProvider: s3-compatible
+  s3Endpoint: ""
+  s3Region: ""
+  s3Bucket: ""
+  s3ForcePathStyle: "true"
+  notificationProvider: disabled
+  smtpHost: ""
+  smtpPort: "587"
+  smtpFrom: ""
+  tenantSelfSignup: "false"
+  tenantSelfServiceCreate: "false"
+  identityProviders: ""
+postgres:
+  database: saas
+  username: saas
+  persistence:
+    storageClassName: ""
+    size: 20Gi
+resources: { api: {}, worker: {}, web: {}, edge: {}, postgres: {} }
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+upgrade:
+  # allow must be explicitly enabled by the operator after drain/backup/restore verification.
+  allow: false

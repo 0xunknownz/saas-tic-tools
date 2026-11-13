@@ -1,0 +1,264 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Sample Product test item dictionary",
+    "version": "0.1.0",
+    "description": "Product-owned business API; not a Foundation API. Every response carries X-Request-ID, the correlation id shared by API logs, edge logs and persisted records."
+  },
+  "paths": {
+    "/api/product-admin/v1/test-items": {
+      "get": {
+        "operationId": "listProductTestItems",
+        "summary": "List Product test item dictionary",
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "x-permission": "platform.product.testitems.read",
+        "x-tenant-scoped": false,
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product test items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TestItem"
+                      }
+                    },
+                    "total": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product-admin/v1/test-items/{id}": {
+      "put": {
+        "operationId": "updateProductTestItem",
+        "summary": "Update a Product test item",
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "x-permission": "platform.product.testitems.manage",
+        "x-tenant-scoped": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "category",
+                  "method",
+                  "description",
+                  "expectedRevision"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "category": {
+                    "type": "string"
+                  },
+                  "method": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "expectedRevision": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated Product test item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestItem"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/Error"
+          },
+          "403": {
+            "$ref": "#/components/responses/Error"
+          },
+          "404": {
+            "$ref": "#/components/responses/Error"
+          },
+          "409": {
+            "$ref": "#/components/responses/Error"
+          }
+        }
+      },
+      "get": {
+        "operationId": "getProductTestItem",
+        "summary": "Read a Product test item",
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "x-permission": "platform.product.testitems.read",
+        "x-tenant-scoped": false,
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product test item",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestItem"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "headers": {
+      "XRequestID": {
+        "description": "Correlation id for this request: 32 lowercase hex characters, generated per request. A well-formed inbound X-Request-ID is echoed instead. The same value appears in API and edge access logs and, for derived work, in persisted records. It is a correlation key, never a credential.",
+        "schema": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Request rejected",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/XRequestID"
+          }
+        },
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      }
+    },
+    "securitySchemes": {
+      "adminSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "admin_session"
+      }
+    },
+    "schemas": {
+      "TestItem": {
+        "type": "object",
+        "required": ["id", "code", "name", "category", "method", "description", "revision"],
+        "properties": {
+          "id": { "type": "string" },
+          "code": { "type": "string" },
+          "name": { "type": "string" },
+          "category": { "type": "string" },
+          "method": { "type": "string" },
+          "description": { "type": "string" },
+          "revision": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

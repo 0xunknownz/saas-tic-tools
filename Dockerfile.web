@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1
+# Product Web (TanStack Start SSR). Build from the repository root so the
+# workspace packages resolve; the runtime stage only carries what it needs.
+FROM node:22-alpine AS build
+WORKDIR /app
+RUN corepack enable
+COPY package.json pnpm-workspace.yaml ./
+COPY apps/web ./apps/web
+COPY apps/api/openapi ./apps/api/openapi
+COPY .saasctl/openapi ./apps/api/openapi
+COPY scripts ./scripts
+COPY packages ./packages
+RUN --mount=type=secret,id=npm_token,required=false \
+    if [ -s /run/secrets/npm_token ]; then printf '@0xunknownz:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\n' "$(cat /run/secrets/npm_token)" > /root/.npmrc; fi; \
+    pnpm install --no-frozen-lockfile; status=$?; rm -f /root/.npmrc; exit $status
+RUN pnpm --filter ./apps/web build
+
+FROM node:22-alpine
+ENV NODE_ENV=production
+WORKDIR /app
+RUN addgroup -S app && adduser -S app -G app
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/packages ./packages
+COPY --from=build /app/apps/web ./apps/web
+USER app
+EXPOSE 3000
+CMD ["/app/apps/web/node_modules/.bin/srvx", "serve", "--prod", "--entry", "apps/web/dist/server/server.js", "--port", "3000", "--host", "0.0.0.0"]

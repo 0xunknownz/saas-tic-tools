@@ -1,0 +1,3 @@
+# Local test-environment secrets; only deploy/.env.example belongs in version control.
+.env
+.test-license.env

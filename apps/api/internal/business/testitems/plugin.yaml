@@ -1,0 +1,28 @@
+id: product.testitems
+version: 0.1.0
+contractVersion: 1
+package: "saas-tic-tools/apps/api/internal/business/testitems"
+
+dependencies:
+  - id: db
+    version: "^1.0.0"
+  - id: identity
+    version: "^1.0.0"
+  - id: audit
+    version: "^1.0.0"
+
+capabilities:
+  - product.testitems.dictionary.v1
+  - product.testitems.dictionary.v2
+
+configSchema: "./config.schema.json"
+permissions:
+  - platform.product.testitems.read
+  - platform.product.testitems.manage
+
+entries:
+  service: NewService
+  http: RegisterHTTP
+
+migrations:
+  directory: "./migrations"

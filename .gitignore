@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.output/
+.vite/
+*.log
+.DS_Store
+# saasctl local state; the generated manifest is tracked.
+.saasctl/*
+!.saasctl/generated-manifest.json
+# go tool saasctl build output: reproducible from the composition, so not tracked.
+release/
+# deployment secrets (deploy/.env.example is the template)
+deploy/.env
