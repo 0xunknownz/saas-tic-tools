@@ -1,13 +1,22 @@
 name: ci
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
-# The Foundation module is a private repository (docs/foundation-modularization.md 5.3). This Product's
-# CI uses its own read-only token; the repository's GITHUB_TOKEN cannot read another private repository.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+# Foundation source is currently public. Keep an optional credential for private deployments;
+# GitHub Packages authentication is configured separately in the frontend job (docs/ci.md).
 env:
   GOPRIVATE: github.com/0xunknownz/*
-  # The same secret also needs read:packages: the web/admin builds install @0xunknownz/foundation-*.
   FOUNDATION_READ_TOKEN: ${{ secrets.FOUNDATION_READ_TOKEN }}
-  NODE_AUTH_TOKEN: ${{ secrets.FOUNDATION_READ_TOKEN }}
 
 jobs:
   api:
@@ -17,13 +26,13 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.26"
-      - name: Authenticate to the private Foundation module
+      - name: Configure optional Foundation source authentication
         run: |
-          if [ -z "$FOUNDATION_READ_TOKEN" ]; then
-            echo "::error::set the FOUNDATION_READ_TOKEN secret to a read-only token for github.com/0xunknownz/saas.starter"
-            exit 1
+          if [ -n "$FOUNDATION_READ_TOKEN" ]; then
+            git config --global url."https://x-access-token:${FOUNDATION_READ_TOKEN}@github.com/".insteadOf "https://github.com/"
+          else
+            echo "Using anonymous access to the public Foundation source repository."
           fi
-          git config --global url."https://x-access-token:${FOUNDATION_READ_TOKEN}@github.com/".insteadOf "https://github.com/"
       - name: Build
         working-directory: apps/api
         run: go build ./...
@@ -60,13 +69,13 @@ jobs:
           # apps/api/go.mod pins the Foundation module and the CLI in one version; `go tool saasctl`
           # builds exactly that version, so no separate install step and no version variable.
           go-version: "1.26"
-      - name: Authenticate to the private Foundation module
+      - name: Configure optional Foundation source authentication
         run: |
-          if [ -z "$FOUNDATION_READ_TOKEN" ]; then
-            echo "::error::set the FOUNDATION_READ_TOKEN secret to a read-only token for github.com/0xunknownz/saas.starter"
-            exit 1
+          if [ -n "$FOUNDATION_READ_TOKEN" ]; then
+            git config --global url."https://x-access-token:${FOUNDATION_READ_TOKEN}@github.com/".insteadOf "https://github.com/"
+          else
+            echo "Using anonymous access to the public Foundation source repository."
           fi
-          git config --global url."https://x-access-token:${FOUNDATION_READ_TOKEN}@github.com/".insteadOf "https://github.com/"
       - name: Migrate the database
         run: go tool saasctl db migrate --yes
       - name: Start the API
@@ -76,7 +85,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/storage"
           nohup "$RUNNER_TEMP/api" > "$RUNNER_TEMP/api.log" 2>&1 &
           echo $! > "$RUNNER_TEMP/api.pid"
-          for i in $(seq 1 100); do
+          for _ in $(seq 1 100); do
             if curl -fsS "$API_BASE/readyz" > /dev/null; then exit 0; fi
             sleep 0.2
           done
@@ -112,6 +121,13 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    env:
+      # GITHUB_TOKEN can read public packages or packages granting this repository Actions access.
+      # A classic PAT with read:packages is only needed when that access is unavailable.
+      NODE_AUTH_TOKEN: ${{ secrets.FOUNDATION_READ_TOKEN || github.token }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -121,8 +137,16 @@ jobs:
           cache: pnpm
       - name: Authenticate to GitHub Packages
         run: |
-          # pnpm 10 ignores NODE_AUTH_TOKEN expansion in a project .npmrc; the user-level file is trusted.
-          printf '@0xunknownz:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\n' "$NODE_AUTH_TOKEN" > "$HOME/.npmrc"
+          # pnpm 10 only expands credential variables from trusted user configuration.
+          # Keep the token in the environment instead of writing its value to disk.
+          umask 077
+          npm_user_config="$RUNNER_TEMP/foundation.npmrc"
+          # shellcheck disable=SC2016 # pnpm expands this reference when it reads the trusted file.
+          printf '@0xunknownz:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}\n' > "$npm_user_config"
+          printf 'NPM_CONFIG_USERCONFIG=%s\n' "$npm_user_config" >> "$GITHUB_ENV"
+          if [ -z "$FOUNDATION_READ_TOKEN" ]; then
+            echo "Using GITHUB_TOKEN with packages:read. If package access is denied, follow docs/ci.md."
+          fi
       - run: pnpm install --frozen-lockfile
       # Build first: TanStack Router writes src/routeTree.gen.ts during the build, which typecheck needs.
       - run: pnpm build
