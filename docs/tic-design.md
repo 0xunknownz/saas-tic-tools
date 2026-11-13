@@ -30,4 +30,4 @@
 
 ## 页面补充规范
 
-后续公告、项目、标准、报告各自补充对应设计文档，并以此公共规范为基础。
+页面补充：[公告](tic-announcements-design.md)、[项目](tic-projects-design.md)、[国家标准](tic-standards-design.md)、[报告档案](tic-reports-design.md)。四页沿用本规范，筛选即时生效，所有表格可在区域内横向滚动。验收结果与范围见 [验收记录](tic-acceptance.md)。

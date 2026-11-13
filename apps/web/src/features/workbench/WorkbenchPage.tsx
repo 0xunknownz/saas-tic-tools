@@ -1,10 +1,20 @@
 import { useRouterState } from '@tanstack/react-router'
 import { allNavItems, navGroups, projectItems, toolItems } from './navigation'
 import { AppLink as Link, EmptyState, Icon, PageHeading, Panel } from './ui'
+import { AnnouncementsPage } from '../announcements/AnnouncementsPage'
+import { announcements } from '../announcements/data'
+import { ProjectsPage } from '../projects/ProjectsPage'
+import { StandardsPage } from '../standards/StandardsPage'
+import { ReportsPage } from '../reports/ReportsPage'
 
 export function WorkbenchPage() {
   const path = useRouterState({ select: state => state.location.pathname })
   if (path === '/') return <Home />
+  if (path === '/announcements' || path.startsWith('/announcements/')) return <AnnouncementsPage path={path} />
+  if (path === '/standards' || path.startsWith('/standards/')) return <StandardsPage path={path} />
+  if (path === '/reports' || path.startsWith('/reports/')) return <ReportsPage path={path} />
+  const isProjectTemplate = projectItems.some(item => item.href !== '/projects' && item.href === path)
+  if (path === '/projects' || (path.startsWith('/projects/') && !isProjectTemplate)) return <ProjectsPage path={path} />
   const item = allNavItems.find(entry => entry.href === path)
   const group = navGroups.find(entry => entry.href === path && entry.items)
   if (group) return <><PageHeading title={group.label} description="按工作目的选择入口。业务数据均为示例。" /><Panel><div className="tic-tool-grid">{group.items!.map(entry => <QuickLink key={entry.href} {...entry} />)}</div></Panel></>
@@ -15,5 +25,5 @@ function QuickLink({ label, href, description, index = 0 }: { label: string; hre
   return <Link className={'tic-tool-card tone-' + index % 4} to={href}><Icon name={['search', 'building', 'clipboard', 'document', 'shield', 'sliders'][index % 6]} /><strong>{label}</strong><span>{description || '进入资料库'}</span><b aria-hidden="true">›</b></Link>
 }
 function Home() {
-  return <div className="tic-home-grid"><Panel title="TIC工具箱" eyebrow="TIC TOOLBOX" action={<Link to="/tools">查看全部 ›</Link>} className="tic-tools-panel"><p className="tic-muted">按查询目的直接进入，不需要经过多层菜单。</p><div className="tic-tool-grid">{toolItems.map((item, index) => <QuickLink key={item.href} {...item} index={index} />)}</div></Panel><div className="tic-home-side"><Panel title="项目快捷入口" eyebrow="PROJECT RECORDS"><div className="tic-project-links">{projectItems.map(item => <Link key={item.href} to={item.href}><span><strong>{item.label}</strong><small>{item.description}</small></span><span aria-hidden="true">›</span></Link>)}</div></Panel><Panel title="公司公告" eyebrow="INTERNAL NOTICES" action={<Link to="/announcements">全部公告</Link>}><div className="tic-project-links">{['检测报告归档字段更新说明', '质疑材料命名规范更新', '项目资料整理提醒'].map((title, i) => <Link key={title} to="/announcements"><span><span className="tic-tag">示例公告</span><strong>{title}</strong></span><small>11-{String(13 - i).padStart(2, '0')}</small></Link>)}</div></Panel></div></div>
+  return <div className="tic-home-grid"><Panel title="TIC工具箱" eyebrow="TIC TOOLBOX" action={<Link to="/tools">查看全部 ›</Link>} className="tic-tools-panel"><p className="tic-muted">按查询目的直接进入，不需要经过多层菜单。</p><div className="tic-tool-grid">{toolItems.map((item, index) => <QuickLink key={item.href} {...item} index={index} />)}</div></Panel><div className="tic-home-side"><Panel title="项目快捷入口" eyebrow="PROJECT RECORDS"><div className="tic-project-links">{projectItems.map(item => <Link key={item.href} to={item.href}><span><strong>{item.label}</strong><small>{item.description}</small></span><span aria-hidden="true">›</span></Link>)}</div></Panel><Panel title="公司公告" eyebrow="INTERNAL NOTICES" action={<Link to="/announcements">全部公告</Link>}><div className="tic-project-links">{announcements.slice(0, 3).map(item => <Link key={item.id} to={'/announcements/' + item.id}><span><span className="tic-tag">示例公告</span><strong>{item.title}</strong></span><small>{item.date.slice(5)}</small></Link>)}</div></Panel></div></div>
 }
