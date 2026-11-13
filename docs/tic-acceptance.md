@@ -82,3 +82,9 @@ pnpm build、pnpm typecheck、pnpm test 和 git diff --check 全部通过。Web 
 实际点击成员与账单后，浏览器分别到达 http://localhost:13000/console/members 与 /console/billing，文档标题为“Saas Tic Tools 租户后台”（原应用）。开发服务新增 /console/ 代理与 /admin/ 跳转；平台入口到达 http://localhost:15173/admin/，标题为“Saas Tic Tools Admin”。两个管理端代码与样式未修改；生产继续使用 edge 的同域路由。
 
 测试输出中的安全 redirect 拒绝信息、jsdom scrollTo 未实现信息及现有 Admin 大包提示不构成失败。没有新增依赖、业务 API、上传或标准下载能力。真实账号密码/MFA 的验证边界见开头。
+
+## GitHub 交付与 CI 限制
+
+草稿 PR：https://github.com/0xunknownz/saas-tic-tools/pull/6 。Issues #1–#5 已全部关闭，44 项复选框均勾选。
+
+GitHub Actions 运行 https://github.com/0xunknownz/saas-tic-tools/actions/runs/43414873246 未通过：api / security 在私有 Foundation 鉴权步骤失败，frontend 在依赖安装步骤失败，未进入代码构建与测试。只读查询 gh secret list 返回空列表；现有工作流依赖 FOUNDATION_READ_TOKEN，仓库管理员需要在 GitHub Actions secrets 配置具有 Foundation 仓库及 Packages 读取权限的凭据后重新运行。主分支也存在失败的 CI 运行。此限制不等同于本地验收失败，也不应声称远端 CI 已通过。
