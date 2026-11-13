@@ -1,4 +1,7 @@
 node_modules/
+.cache/
+.playwright-cli/
+output/
 dist/
 .output/
 .vite/

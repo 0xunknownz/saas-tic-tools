@@ -2,3 +2,88 @@
    ships dist/ (not its source), so Tailwind must scan the bundle explicitly. */
 @import "@0xunknownz/foundation-tenant-ui/styles.css";
 @source "../../node_modules/@0xunknownz/foundation-tenant-ui/dist";
+
+/* TIC product styles are scoped to the workbench; authentication and admin apps retain Foundation. */
+.tic-app, .tic-auth-state { --tic-primary: #3b82f6; --tic-border: #e2e8f0; --tic-muted: #64748b; color: #0f172a; font: 13px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+.tic-app { display: grid; grid-template-columns: 72px minmax(0, 1fr); min-height: 100dvh; background: #f8fafc; }
+.tic-app.has-secondary { grid-template-columns: 72px 232px minmax(0, 1fr); }
+.tic-app *, .tic-auth-state * { box-sizing: border-box; }
+.tic-app a, .tic-auth-state a { color: #2563eb; text-decoration: none; }
+.tic-app a:hover, .tic-auth-state a:hover { color: #1d4ed8; }
+.tic-app h1, .tic-auth-state h1 { font-size: 19px; font-weight: 800; line-height: 1.4; margin: 0; }
+.tic-app h2 { font-size: 15px; font-weight: 800; line-height: 1.5; margin: 0; }
+.tic-app p { margin: 0 0 14px; }
+.tic-app button, .tic-app input, .tic-app select, .tic-app textarea { font: inherit; }
+.tic-app :focus-visible, .tic-auth-state :focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.tic-primary { border-right: 1px solid var(--tic-border); background: white; padding: 16px 12px; position: sticky; top: 0; height: 100dvh; overflow-y: auto; }
+.tic-brand { display: flex; width: 34px; height: 34px; border-radius: 10px; align-items: center; justify-content: center; margin: 0 auto 20px; background: var(--tic-primary); color: white !important; }
+.tic-primary nav { display: grid; gap: 7px; }
+.tic-primary-link { display: flex; width: 46px; min-height: 44px; align-items: center; justify-content: center; color: #475569 !important; border-radius: 10px; }
+.tic-primary-link span { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); }
+.tic-primary-link:hover, .tic-primary-link.active { background: #eff6ff; color: #3b82f6 !important; }
+.tic-secondary { padding: 24px 16px; border-right: 1px solid var(--tic-border); background: white; position: sticky; top: 0; height: 100dvh; overflow-y: auto; }
+.tic-secondary h2 { margin: 8px 10px 22px; }
+.tic-secondary .tic-eyebrow { margin-left: 10px; }
+.tic-secondary nav { display: grid; gap: 6px; }
+.tic-secondary nav a { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; color: #475569; }
+.tic-secondary nav a.active, .tic-secondary nav a:hover { color: #2563eb; background: #eff6ff; }
+.tic-workspace { min-width: 0; }
+.tic-topbar { height: 58px; padding: 0 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--tic-border); background: white; gap: 12px; }
+.tic-topbar > strong { font-size: 19px; font-weight: 800; }
+.tic-topbar > div { display: flex; align-items: center; gap: 16px; font-size: 12px; }
+.tic-account { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #475569; }
+.tic-top-icon { display: flex; padding: 8px; color: #64748b !important; }
+.tic-content { padding: 16px 22px 28px; }
+.tic-notice { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 11px 12px; margin-bottom: 16px; background: #f1f5f9; border: 1px solid var(--tic-border); border-radius: 9px; font-size: 12px; color: #475569; }
+.tic-notice strong { color: #0f172a; }
+.tic-home-grid { display: grid; grid-template-columns: minmax(0, 2.07fr) minmax(300px, 1fr); gap: 16px; align-items: start; }
+.tic-home-side { display: grid; gap: 20px; min-width: 0; }
+.tic-panel { min-width: 0; padding: 20px; background: white; border: 1px solid var(--tic-border); border-radius: 16px; box-shadow: 0 3px 14px rgb(15 23 42 / 3%); }
+.tic-tools-panel { min-height: 640px; }
+.tic-panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.tic-panel-heading > a { font-size: 12px; flex-shrink: 0; }
+.tic-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .04em; color: #64748b; margin: 0 0 4px !important; }
+.tic-muted { color: #64748b; }
+.tic-tool-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tic-tool-card { position: relative; display: flex; flex-direction: column; align-items: start; min-height: 109px; padding: 15px 14px; border: 1px solid #dce5f2; border-radius: 16px; color: #0f172a !important; transition: border-color .15s, background .15s; }
+.tic-tool-card:hover { border-color: #93c5fd; background: #f8fbff; }
+.tic-tool-card .tic-icon { margin-bottom: 6px; color: #3b82f6; }
+.tic-tool-card.tone-1 .tic-icon { color: #0891b2; }.tic-tool-card.tone-2 .tic-icon { color: #6366f1; }.tic-tool-card.tone-3 .tic-icon { color: #16a34a; }
+.tic-tool-card strong { font-size: 13px; padding-right: 8px; }
+.tic-tool-card > span { font-size: 12px; color: #64748b; margin-top: 4px; padding-right: 10px; }
+.tic-tool-card b { position: absolute; bottom: 12px; right: 16px; font-weight: 400; color: #94a3b8; }
+.tic-project-links > a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid #edf2f7; color: #0f172a; }
+.tic-project-links > a:last-child { border-bottom: 0; }
+.tic-project-links strong { display: block; font-size: 13px; }
+.tic-project-links small { display: block; font-size: 12px; color: #64748b; margin-top: 3px; }
+.tic-tag { display: inline-block; width: fit-content; border-radius: 7px; padding: 2px 7px; background: #eff6ff; color: #2563eb; font-size: 11px; font-weight: 500; }
+.tic-page-heading { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 18px; }
+.tic-page-heading p { color: #64748b; margin: 6px 0 0; }
+.tic-template-title { margin: 16px 0 10px !important; }
+.tic-button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 7px 14px; border-radius: 9px; border: 1px solid #3b82f6; background: #3b82f6; color: white !important; font-size: 12px !important; font-weight: 600; cursor: pointer; }
+.tic-button:hover { background: #2563eb; }.tic-button.secondary { background: white; color: #475569 !important; border-color: #e2e8f0; }.tic-button.secondary:hover { background: #f8fafc; }
+.tic-button:disabled { opacity: .45; cursor: not-allowed; }
+.tic-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin-bottom: 20px; }
+.tic-filters label, .tic-form label { display: grid; gap: 6px; color: #475569; font-size: 12px; }
+.tic-filters input, .tic-filters select, .tic-form input, .tic-form select, .tic-form textarea { width: 100%; min-height: 38px; border: 1px solid #e2e8f0; border-radius: 12px; background: white; padding: 8px 12px; font-size: 12px; color: #0f172a; }
+.tic-filters input { min-width: 240px; }.tic-filters select { min-width: 130px; }
+.tic-table-wrap { max-width: 100%; overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 12px; }
+.tic-app table { width: 100%; min-width: 650px; border-collapse: collapse; text-align: left; font-size: 13px; }
+.tic-app th { background: #f8fafc; color: #475569; font-weight: 600; }.tic-app th, .tic-app td { padding: 13px 16px; border-bottom: 1px solid #e2e8f0; }.tic-app tbody tr:last-child td { border-bottom: 0; }
+.tic-pagination { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding-top: 18px; font-size: 12px; color: #64748b; }.tic-pagination > div { display: flex; gap: 8px; }
+.tic-empty { text-align: center; padding: 50px 16px; color: #64748b; }.tic-empty .tic-icon { margin: 0 auto 16px; }.tic-empty h2 { color: #0f172a; margin-bottom: 8px; }
+.tic-detail { display: grid; gap: 20px; }.tic-detail dl, .tic-details { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }.tic-detail dt, .tic-details dt { font-size: 12px; color: #64748b; }.tic-detail dd, .tic-details dd { margin: 3px 0 0; overflow-wrap: anywhere; }.tic-detail p { white-space: pre-line; overflow-wrap: anywhere; }.tic-detail h2 { margin-bottom: 12px; }
+.tic-form { display: grid; gap: 18px; max-width: 700px; }.tic-form textarea { min-height: 100px; resize: vertical; }.tic-form-actions { display: flex; gap: 10px; }.tic-field-error, .tic-form [role=alert] { color: #b91c1c; font-size: 12px; }.tic-form [aria-invalid=true] { border-color: #dc2626; }
+.tic-footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 24px; color: #64748b; font-size: 11px; }.tic-footer nav { display: flex; flex-wrap: wrap; gap: 16px; }
+.tic-auth-state { max-width: 700px; margin: 100px auto; padding: 24px; }.tic-auth-state p { margin: 14px 0 20px; }
+.tic-menu-toggle { display: none; }.tic-skip { position: fixed; top: -100px; left: 12px; z-index: 50; padding: 10px; background: white; }.tic-skip:focus { top: 10px; }
+@media (max-width: 999px) {
+  .tic-app, .tic-app.has-secondary { display: block; }
+  .tic-primary { position: static; height: auto; display: flex; padding: 8px; gap: 8px; border-bottom: 1px solid #e2e8f0; border-right: 0; overflow: visible; }
+  .tic-brand { flex-shrink: 0; margin: 5px 0; }.tic-primary nav { display: flex; overflow-x: auto; gap: 4px; min-width: 0; padding: 3px; }.tic-primary-link { flex-shrink: 0; width: auto; min-width: 60px; padding: 6px 8px; flex-direction: column; gap: 3px; }.tic-primary-link span { position: static; width: auto; height: auto; clip-path: none; font-size: 10px; white-space: nowrap; }
+  .tic-secondary { display: none; position: static; height: auto; padding: 12px; }.tic-secondary.open { display: block; }.tic-secondary nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }.tic-secondary h2 { margin-bottom: 12px; }
+  .tic-topbar { height: auto; min-height: 58px; padding: 12px 16px; flex-wrap: wrap; }.tic-topbar > div { gap: 10px; flex-wrap: wrap; }.tic-topbar > strong { font-size: 16px; }.tic-account { display: none; }.tic-top-icon { display: none; }.tic-menu-toggle { display: inline-flex; }
+  .tic-content { padding: 16px 14px 28px; }.tic-home-grid { grid-template-columns: 1fr; }.tic-tools-panel { min-height: auto; }.tic-panel { padding: 16px; }.tic-page-heading { flex-wrap: wrap; }.tic-filters { align-items: stretch; }.tic-filters label { flex: 1 1 200px; }.tic-filters input { min-width: 0; }.tic-detail dl, .tic-details { grid-template-columns: 1fr; }
+}
+@media (max-width: 540px) { .tic-tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.tic-tool-card { padding: 12px; }.tic-secondary nav { grid-template-columns: 1fr; }.tic-home-side { gap: 16px; }.tic-auth-state { margin: 40px 12px; } }
+@media (prefers-reduced-motion: reduce) { .tic-app * { transition: none !important; scroll-behavior: auto !important; } }
