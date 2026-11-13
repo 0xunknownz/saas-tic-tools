@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { useWebNavigate } from '../use-web-navigate'
 import { MfaVerifyPage } from '@0xunknownz/foundation-tenant-ui'
 
 export const Route = createFileRoute('/mfa/verify')({
@@ -9,7 +10,7 @@ export const Route = createFileRoute('/mfa/verify')({
 })
 
 function MfaVerifyRoute() {
-  const navigate = useNavigate()
+  const navigate = useWebNavigate()
   const { redirect } = Route.useSearch()
-  return <MfaVerifyPage redirect={redirect} navigate={(path) => void navigate({ href: path })} />
+  return <MfaVerifyPage redirect={redirect} navigate={navigate} />
 }
