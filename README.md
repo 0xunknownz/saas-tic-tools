@@ -13,10 +13,12 @@ the Foundation module this Product compiles; `go.work` at the Product root lets 
 here. Do not install a separate `saasctl` for Product work: only `saasctl init` runs from a global
 install.
 
-## The private Foundation module
+## Foundation source and packages
 
-The Product compiles `github.com/0xunknownz/saas.starter` from a private GitHub repository
-(`docs/foundation-modularization.md` 5.3). Three places need read access:
+The Product compiles `github.com/0xunknownz/saas.starter`, which is currently public and can be read
+anonymously. Foundation npm packages use GitHub Packages and require registry authentication.
+Private Foundation deployments additionally need source repository access. See [CI authentication
+and setup](docs/ci.md) for the verified access requirements and exact setup steps:
 
 - **Developer machine:** use your own GitHub account (read access to the repository) and tell Go the
   module is private:
@@ -26,9 +28,10 @@ The Product compiles `github.com/0xunknownz/saas.starter` from a private GitHub 
   ```
 
   Go then uses the git credentials already configured for `https://github.com`.
-- **Product CI:** store a read-only token for the Foundation repository in this repository's
-  `FOUNDATION_READ_TOKEN` secret. `.github/workflows/ci.yml` exports `GOPRIVATE` and configures git with
-  that token; the repository's own `GITHUB_TOKEN` cannot read another private repository.
+- **Product CI:** Go can read the public source anonymously. npm uses the repository's `GITHUB_TOKEN`
+  with `packages:read` when packages permit it; otherwise configure `FOUNDATION_READ_TOKEN` as an
+  Actions repository secret using a classic PAT with `read:packages`. Private source repositories
+  also need source read access (classic PAT `repo` scope). See [the setup guide](docs/ci.md).
 - **Image builds:** put the same read-only token in `deploy/.env` as `FOUNDATION_READ_TOKEN`. It is
   mounted as BuildKit secret `foundation_token` for the build step only, so it never lands in an image
   layer, the build history, an `ARG` or an `ENV`. A build that uses a vendored Foundation tree (offline

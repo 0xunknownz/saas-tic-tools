@@ -3,6 +3,7 @@ import { createHttpTenantApi } from '@0xunknownz/foundation-tenant-ui'
 import { TenantApiProvider } from '@0xunknownz/foundation-tenant-ui'
 import { TenantUIProvider } from '@0xunknownz/foundation-tenant-ui'
 import '../styles/app.css'
+import { WorkbenchBoundary } from '../features/workbench/Shell'
 
 const api = createHttpTenantApi()
 
@@ -26,7 +27,7 @@ function Root() {
       <body>
         <TenantUIProvider branding={{ productName: 'Saas Tic Tools', locale: 'zh-CN' }}>
           <TenantApiProvider api={api}>
-            <Outlet />
+            <WorkbenchBoundary><Outlet /></WorkbenchBoundary>
           </TenantApiProvider>
         </TenantUIProvider>
         <Scripts />

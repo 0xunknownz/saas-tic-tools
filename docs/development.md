@@ -17,6 +17,8 @@ Default addresses (edit `config/development.yaml`):
 | Tenant admin | http://localhost:13001/console/ |
 | PostgreSQL | localhost:15432 (password in `.saasctl/dev.env`, generated on first run) |
 
+Web 开发服务将 `/console/` 代理到现有租户后台（`TENANT_ADMIN_PORT`，默认 13001），以保留同域会话。`/admin/` 在开发环境跳转到现有平台后台（`ADMIN_PORT`，默认 15173）；生产部署仍由 edge 按同域路径路由。无需另外启动一套服务。
+
 ## License in development
 
 When the composition includes the `license` module, `dev up` installs a locally signed development License before starting the API (valid for 30 days, renewed by the next `dev up`) and prints its expiry. Without it the fresh database stays in the `missing` state and D-011 blocks writes such as creating a tenant (`403 LICENSE_RESTRICTED`). The development signing key is generated once into `.saasctl/dev-license-key.pem` (0600, git-ignored) and is not customer signing material. If you manage licensing yourself, set `LICENSE_VERIFICATION_KEYS`, `LICENSE_INSTANCE_ID` and `LICENSE_PRODUCT_VERSION`; `dev up` then leaves the license state alone.
