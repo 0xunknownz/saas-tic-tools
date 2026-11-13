@@ -6,6 +6,8 @@
 
 但 Foundation 源码仓库 [0xunknownz/saas.starter](https://github.com/0xunknownz/saas.starter) 当前为公开仓库，v0.2.1 标签已通过关闭凭据助手的 git ls-remote 匿名验证。因此 Go 构建不再因没有 PAT 而提前失败。私有包和源码仓库的访问要求必须分开判断。
 
+修复提交 b16633b 的 [运行 43416328629](https://github.com/0xunknownz/saas-tic-tools/actions/runs/43416328629) 已验证 api 和 frontend 通过，未新增任何仓库 secret。前端完成了真实依赖安装、构建、类型检查和测试，因此当前无需配置 FOUNDATION_READ_TOKEN。安全任务和后续运行状态以运行页为准。
+
 ## 工作流现在如何认证
 
 - api / security：不配置 secret 时匿名读取公开 Foundation；配置后使用 FOUNDATION_READ_TOKEN 访问需要认证的源码。
@@ -34,6 +36,14 @@
 ```bash
 gh secret set FOUNDATION_READ_TOKEN --repo 0xunknownz/saas-tic-tools
 ```
+
+## 安全测试许可证初始化
+
+修复认证后，运行 43416328629 的安全套件实际执行，报告为 88 个 operation、147 个 case，75 个 INVALID。首个问题是创建测试账号/租户的合法请求被许可证门禁以 403 拒绝（the installed licence restricts this operation），随后依赖这些记录的测试夹具级联失败。
+
+CI 现在在迁移完成、API 启动之前执行 apps/api/cmd/ci-license。它仅允许 GITHUB_ACTIONS=true 且 APP_ENV=development，通过真实许可证 importer 安装 24 小时签名测试许可证，包含样例模块需要的 advanced 能力；私钥只在进程内存中生成和使用，仅把公开验证密钥与匹配的 instance/version 写入 GITHUB_ENV 供 API 使用。它不修改生产配置、不关闭许可证门禁，也不跳过安全探针。CI 的 PostgreSQL 是该 job 的一次性 service 数据库。
+
+新增命令的测试确认它在非开发 CI 环境、缺少 GITHUB_ENV 时会在连接数据库之前拒绝执行。端到端签名验证和安全套件结果仍由真实 Actions 运行验证。
 
 ## 如何判断已修复
 

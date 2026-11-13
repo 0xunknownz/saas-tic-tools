@@ -78,6 +78,11 @@ jobs:
           fi
       - name: Migrate the database
         run: go tool saasctl db migrate --yes
+      - name: Install a signed CI test license
+        working-directory: apps/api
+        run: go run ./cmd/ci-license
+        env:
+          APP_ENV: development
       - name: Start the API
         working-directory: apps/api
         run: |

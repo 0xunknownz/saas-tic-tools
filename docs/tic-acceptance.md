@@ -83,8 +83,8 @@ pnpm build、pnpm typecheck、pnpm test 和 git diff --check 全部通过。Web 
 
 测试输出中的安全 redirect 拒绝信息、jsdom scrollTo 未实现信息及现有 Admin 大包提示不构成失败。没有新增依赖、业务 API、上传或标准下载能力。真实账号密码/MFA 的验证边界见开头。
 
-## GitHub 交付与 CI 限制
+## GitHub 交付与 CI 后续修复
 
 草稿 PR：https://github.com/0xunknownz/saas-tic-tools/pull/6 。Issues #1–#5 已全部关闭，44 项复选框均勾选。
 
-GitHub Actions 运行 https://github.com/0xunknownz/saas-tic-tools/actions/runs/43414873246 未通过：api / security 在私有 Foundation 鉴权步骤失败，frontend 在依赖安装步骤失败，未进入代码构建与测试。只读查询 gh secret list 返回空列表；现有工作流依赖 FOUNDATION_READ_TOKEN，仓库管理员需要在 GitHub Actions secrets 配置具有 Foundation 仓库及 Packages 读取权限的凭据后重新运行。主分支也存在失败的 CI 运行。此限制不等同于本地验收失败，也不应声称远端 CI 已通过。
+初次 GitHub Actions 运行 43414873246 未通过：api / security 在空 Foundation 凭据的强制检查处退出，frontend 下载 npm 包返回 401。后续检查确认 Foundation 源码实际公开，v0.2.1 可匿名读取；工作流已删除不必要的源码凭据门槛，并让前端默认使用只读 GITHUB_TOKEN 下载包，保留 FOUNDATION_READ_TOKEN 可选覆盖。修复后的运行 [43416328629](https://github.com/0xunknownz/saas-tic-tools/actions/runs/43416328629) 已验证 api 与 frontend 通过且未配置额外 secret。详细诊断、认证边界与备用 token 配置步骤见 [CI 指南](ci.md)；安全任务结果以该运行记录和 PR 最新提交检查为准。
