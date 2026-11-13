@@ -6,6 +6,10 @@ export interface Target {
 }
 
 export function resolveWebPath(path: string): Target {
-  if (path === '/members' || path === '/billing') return { kind: 'page', href: '/console' + path }
+  const pathname = path.split(/[?#]/, 1)[0]
+  if (pathname === '/members' || pathname === '/billing') return { kind: 'page', href: '/console' + path }
+  if (pathname === '/console' || pathname.startsWith('/console/') || pathname === '/admin' || pathname.startsWith('/admin/')) {
+    return { kind: 'page', href: path }
+  }
   return { kind: 'route', href: path }
 }

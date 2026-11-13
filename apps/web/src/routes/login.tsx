@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { LoginPage } from '@0xunknownz/foundation-tenant-ui'
+import { createFileRoute } from '@tanstack/react-router'
+import { useWebNavigate } from '../use-web-navigate'
+import { LoginPage, safeRedirect } from '@0xunknownz/foundation-tenant-ui'
 
 export const Route = createFileRoute('/login')({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -9,7 +10,14 @@ export const Route = createFileRoute('/login')({
 })
 
 function LoginRoute() {
-  const navigate = useNavigate()
+  const navigate = useWebNavigate()
   const { redirect } = Route.useSearch()
-  return <LoginPage redirect={redirect} navigate={(path) => void navigate({ href: path })} />
+  return <LoginPage redirect={redirect} navigate={(path) => {
+    // Foundation's login page selects the required MFA step; retain the product destination.
+    const isMfaStep = path === '/mfa/verify' || path === '/mfa/enroll'
+    const href = isMfaStep && redirect !== undefined
+      ? path + '?redirect=' + encodeURIComponent(safeRedirect(redirect, '/'))
+      : path
+    navigate(href)
+  }} />
 }

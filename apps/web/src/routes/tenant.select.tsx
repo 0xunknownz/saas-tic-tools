@@ -1,9 +1,21 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { TenantSwitchPage } from '@0xunknownz/foundation-tenant-ui'
+import { createFileRoute } from '@tanstack/react-router'
+import { TenantSwitchPage, safeRedirect } from '@0xunknownz/foundation-tenant-ui'
+import { useWebNavigate } from '../use-web-navigate'
 
-export const Route = createFileRoute('/tenant/select')({ component: TenantSelectRoute })
+export const Route = createFileRoute('/tenant/select')({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search.redirect === 'string' ? search.redirect : undefined,
+  }),
+  component: TenantSelectRoute,
+})
 
 function TenantSelectRoute() {
-  const navigate = useNavigate()
-  return <TenantSwitchPage navigate={(path) => void navigate({ href: path })} />
+  const navigate = useWebNavigate()
+  const { redirect } = Route.useSearch()
+  return <TenantSwitchPage navigate={(path) => {
+    if (redirect !== undefined && path === '/') navigate(safeRedirect(redirect, '/'))
+    else if (redirect !== undefined && path === '/login') {
+      navigate('/login?redirect=' + encodeURIComponent(safeRedirect(redirect, '/')))
+    } else navigate(path)
+  }} />
 }

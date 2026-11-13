@@ -24,16 +24,18 @@ export function decideSession(session: UseSessionResult): SessionDecision {
   return 'ok'
 }
 
+export function sessionEntryHref(decision: 'login' | 'select', location: Pick<Location, 'pathname' | 'search' | 'hash'>): string {
+  const destination = decision === 'login' ? '/login' : '/tenant/select'
+  return destination + '?redirect=' + encodeURIComponent(location.pathname + location.search + location.hash)
+}
+
 function Guard({ children }: { children: ReactNode }) {
   const session = useSession()
   const decision = decideSession(session)
 
   useEffect(() => {
-    if (decision === 'login') {
-      const redirect = encodeURIComponent(window.location.pathname + window.location.search)
-      window.location.assign('/login?redirect=' + redirect)
-    } else if (decision === 'select') {
-      window.location.assign('/tenant/select')
+    if (decision === 'login' || decision === 'select') {
+      window.location.assign(sessionEntryHref(decision, window.location))
     }
   }, [decision])
 
@@ -45,6 +47,16 @@ function Guard({ children }: { children: ReactNode }) {
         <button type="button" className="ftu-button" onClick={() => void session.refresh()}>重试</button>
       </div>
     )
+  }
+  if (decision === 'forbidden') {
+    return <main className="ftu-card ftu-stack">
+      <h1>没有管理权限</h1>
+      <p>当前账号不是所选租户的管理员。请选择有管理权限的租户，或返回工作台。</p>
+      <div className="ftu-row">
+        <a className="ftu-button" href="/">返回工作台</a>
+        <a className="ftu-link" href={sessionEntryHref('select', window.location)}>切换租户</a>
+      </div>
+    </main>
   }
   if (decision !== 'ok') return null
   return (

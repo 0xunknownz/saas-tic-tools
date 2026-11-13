@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { decideSession } from '../src/root'
+import { decideSession, sessionEntryHref } from '../src/root'
 import type { UseSessionResult } from '@0xunknownz/foundation-tenant-ui'
 
 function state(overrides: Partial<UseSessionResult>): UseSessionResult {
@@ -10,6 +10,15 @@ const signedIn = (role: string | null, tenant: object | null) =>
   state({ session: { email: 'a@example.com', role, tenant } as never })
 
 describe('tenant-admin root guard (design 4.1)', () => {
+  it('retains the current management destination through login and tenant selection', () => {
+    const location = { pathname: '/console/members', search: '?filter=active', hash: '#table' }
+    for (const decision of ['login', 'select'] as const) {
+      const href = new URL(sessionEntryHref(decision, location), 'https://example.test')
+      expect(href.pathname).toBe(decision === 'login' ? '/login' : '/tenant/select')
+      expect(href.searchParams.get('redirect')).toBe('/console/members?filter=active#table')
+    }
+  })
+
   it('keeps showing loading while the session request runs', () => {
     expect(decideSession(state({ loading: true }))).toBe('loading')
   })
