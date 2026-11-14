@@ -16,7 +16,7 @@ OCR 供应商由项目方指定为 **PaddleOCR**（AI Studio 官方 API）。后
 - #18 第 1 项：用授权真实样本实测并选定云 OCR 供应商、记录真实费用/限制/差异。
 - #19 第 7 项：独立同版式样本泛化验证。
 - #22 第 1、2 项：真实样本人工核对与真实云 OCR 全流程验收。
-- #22 第 3 项中的“扫描样本/真实权限加密样本”部分（已用生成的权限加密 PDF 验证可读性，但没有客户真实样本）。
+- #22 第 3 项已用生成的 50/51 份、50MB、100/101 页、混合损坏/加密/非 PDF、图像型扫描与空用户密码权限加密样本完成覆盖；但没有客户真实样本。
 
 其余验收项均有下方证据。真实客户原件未提交到仓库。
 
@@ -71,8 +71,12 @@ OCR 供应商由项目方指定为 **PaddleOCR**（AI Studio 官方 API）。后
 | 非 PDF / 损坏 / 需要密码 | PDF_TYPE_INVALID / PDF_CORRUPT / PDF_PASSWORD_REQUIRED |
 | 5 个并发同文件上传 | 5 个 duplicate 响应，数据库仅 1 份报告 |
 | 相同文件已作废后重传 | 新待处理候选，`duplicate_of` 指向原档案，原件表不新增行 |
-| 50,000,000 字节精确边界（单元测试） | 通过；少 1 字节上限即拒绝 |
-| 100/101 页边界（单元测试） | 100 页通过，101 页 PDF_TOO_MANY_PAGES |
+| 50,000,000 字节精确边界 | HTTP + 单元测试通过（50,000,000 字节接收，少 1 字节上限拒绝） |
+| 100/101 页边界 | HTTP + 单元测试：100 页接收，101 页 PDF_TOO_MANY_PAGES |
+| 权限加密 PDF（空用户密码） | HTTP 接收（6 页） |
+| 图像型/扫描 PDF（无文本层） | HTTP 接收（1 页） |
+| 混合损坏/加密/非 PDF | 逐份拒绝或接收，原因正确 |
+| PDF Range | `Range: bytes=0-99` 返回 206、Content-Range `0-99/50000000`、Accept-Ranges bytes |
 
 ## OCR 与任务（#18）
 
@@ -188,6 +192,6 @@ pnpm test                            # 17 个测试文件 / 114 个测试通过
 3. **原件存储**：Foundation storage 插件未导出可供产品插件依赖的 service 接口（Plugin Contract v1 仅允许依赖接口），本期将不可变原件存入 `report_files.content bytea`，与业务写入同事务提交，避免孤儿文件；后续对象存储迁移需 Foundation 暴露 storage 接口。
 4. **任务队列**：Foundation jobs 同样未导出队列接口；本期使用同一 PostgreSQL 的 `report_jobs`（SKIP LOCKED、幂等键、running 恢复、退避），满足可靠性要求但不是 Foundation jobs 表。
 5. 50 MB 文件在服务端按单文件读入内存校验与入库；并发上传受批次和 OCR 并发限制，生产需按内存预算调整。
-6. PDF 预览当前整文件返回，未实现 HTTP Range；大文件预览体验需后续补 Range。
+6. PDF 预览已支持单段 HTTP Range；多段 Range 不支持（与 Foundation storage 下载语义一致）。
 7. 规则是受约束的声明式正则配置，依赖首套版式 OCR 文本形态；版式变化需管理员调整规则。
 8. 原始客户 PDF 未提交到仓库；验收使用生成的替身 PDF，真实样本核对仍需项目方提供。

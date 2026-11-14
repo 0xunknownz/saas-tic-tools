@@ -1,6 +1,7 @@
 package reportarchive
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -200,9 +201,9 @@ func (a *apiHandler) serveFile(w http.ResponseWriter, req *http.Request, s sessi
 	w.Header().Set("X-Content-Type-Options", "nosniff")
 	w.Header().Set("Cache-Control", "private, no-store")
 	w.Header().Set("Content-Disposition", mime.FormatMediaType(disposition, map[string]string{"filename": r.File.FileName}))
-	w.Header().Set("Content-Length", strconv.FormatInt(int64(len(content)), 10))
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write(content)
+	// ServeContent adds Accept-Ranges and serves single byte ranges, which the PDF viewer uses to
+	// fetch only the pages it needs. Access was already checked above.
+	http.ServeContent(w, req, r.File.FileName, r.File.CreatedAt, bytes.NewReader(content))
 }
 
 func (a *apiHandler) upload(w http.ResponseWriter, req *http.Request, s session) {
