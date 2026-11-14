@@ -276,7 +276,7 @@ func parseDocument(rule *Rule, pages []OCRPage) ParseResult {
 			continue
 		}
 		for _, line := range lines {
-			if excluded(line.text, fr.Exclude) || !containsAny(line.text, fr.Labels) {
+			if excluded(line.text, fr.Exclude) || !hasFieldLabel(line.text, fr.Labels) {
 				continue
 			}
 			m := re.FindStringSubmatch(line.text)
@@ -310,7 +310,7 @@ func parseDocument(rule *Rule, pages []OCRPage) ParseResult {
 			continue
 		}
 		for i, line := range lines {
-			if excluded(line.text, fr.Exclude) || !containsAny(line.text, fr.Labels) {
+			if excluded(line.text, fr.Exclude) || !hasFieldLabel(line.text, fr.Labels) {
 				continue
 			}
 			if value, src, ok := adjacentFieldValue(name, fr, re, c, lines, i, allLabels, res.Fields); ok {
@@ -319,8 +319,10 @@ func parseDocument(rule *Rule, pages []OCRPage) ParseResult {
 			}
 		}
 	}
-	// The issuing institution is often only in the page header, not next to a "检测机构" label.
-	if strings.TrimSpace(res.Fields["institution"]) == "" && rule.Config.Institution != "" {
+	// The issuing institution is often only in the page header, not next to a "检测机构" label. When
+	// the matched rule names the institution and the document carries it, that is the issuer even if
+	// a noisy label line captured something else first.
+	if rule.Config.Institution != "" {
 		for _, line := range lines {
 			if strings.Contains(line.text, rule.Config.Institution) {
 				assignField(&res, "institution", rule.Config.Institution, line)
@@ -492,6 +494,17 @@ var detailColumnHeaders = []string{"序号", "检验项目", "技术要求", "�
 var detailRowNumberRE = regexp.MustCompile("^[0-9]{1,3}$")
 
 var detailWatermarkRE = regexp.MustCompile("^(?:JXQI?|XQI|QI|TEST|Test Report)$")
+
+var orgSuffixRE = regexp.MustCompile("(?:公司|中心|厂|院|集团|商行|商场|商店|政府|学校|委员会|研究所)")
+
+func isUnitField(name string) bool {
+	switch name {
+	case "clientUnit", "inspectedUnit", "manufacturer", "institution":
+		return true
+	default:
+		return false
+	}
+}
 
 var detailNoiseRE = regexp.MustCompile("^(?:JXQI?|XQI|QI|TEST|Test Report|第\\s*[0-9]+\\s*页/共\\s*[0-9]+\\s*页|报告编号：.*|检验检测报告.*|江西中标检检测中心有限公司|CHINA STANDARDTEST)$")
 
@@ -729,7 +742,7 @@ func adjacentFieldValue(name string, fr FieldRule, re *regexp.Regexp, c *compile
 			// An optional field must not jump over the next label and steal its value.
 			return "", docLine{}, false, !fr.Required
 		}
-		if duplicateFieldValue(text, taken) {
+		if duplicateFieldValue(text, taken) && !isUnitField(name) {
 			return "", docLine{}, false, false
 		}
 		if fr.Format == "date" {
@@ -746,12 +759,22 @@ func adjacentFieldValue(name string, fr FieldRule, re *regexp.Regexp, c *compile
 		if !plausibleAdjacentValue(text) {
 			return "", docLine{}, false, false
 		}
+		if isUnitField(name) && !orgSuffixRE.MatchString(text) {
+			return "", docLine{}, false, false
+		}
+		if name == "conclusion" && !strings.Contains(text, "合格") && !strings.Contains(text, "不合格") {
+			return "", docLine{}, false, false
+		}
 		if reFmt, ok := c.fieldFormats[name]; ok && !reFmt.MatchString(text) {
 			return "", docLine{}, false, false
 		}
 		return cleanFieldValue(text), lines[j], true, false
 	}
-	maxNext, maxPrev := 3, 2
+	maxNext, maxPrev := 5, 2
+	if fr.Format == "date" {
+		// OCR often inserts several English caption lines between the date label and its value.
+		maxNext = 6
+	}
 	if !fr.Required {
 		// Optional fields get one adjacent line only; a wider window would let a table header
 		// ("样品等级", "商标") become a field value.
@@ -766,7 +789,11 @@ func adjacentFieldValue(name string, fr FieldRule, re *regexp.Regexp, c *compile
 	}
 	for d := 1; d <= maxPrev; d++ {
 		if value, line, ok, stop := try(idx - d); ok {
-			return value, line, true
+			// Values that precede their label are sentences in this layout ("经检验，所检项目合格。");
+			// a short standalone token is another column's value ("委托检验").
+			if len([]rune(strings.TrimSpace(value))) >= 6 || strings.ContainsAny(value, "。；;") {
+				return value, line, true
+			}
 		} else if stop {
 			break
 		}
@@ -858,6 +885,29 @@ func startsWithAny(s string, needles []string) bool {
 	return false
 }
 
+// hasFieldLabel reports whether a label appears as a label (optionally followed by a colon or
+// non-CJK noise), not as a prefix of a longer label ("委托单位地址" is not "委托单位").
+func hasFieldLabel(text string, labels []string) bool {
+	for _, label := range labels {
+		if label == "" {
+			continue
+		}
+		idx := strings.Index(text, label)
+		if idx < 0 {
+			continue
+		}
+		rest := text[idx+len(label):]
+		if rest == "" {
+			return true
+		}
+		r := []rune(rest)[0]
+		if r == ':' || r == '：' || r == '/' || r == ' ' || r == '\t' || !(r >= 0x4E00 && r <= 0x9FFF) {
+			return true
+		}
+	}
+	return false
+}
+
 func containsAny(s string, needles []string) bool {
 	for _, n := range needles {
 		if n != "" && strings.Contains(s, n) {
@@ -882,6 +932,11 @@ func cleanFieldValue(s string) string {
 	s = strings.TrimSpace(s)
 	s = strings.TrimLeft(s, ":：")
 	s = strings.TrimSpace(s)
+	for _, watermark := range []string{"JXQI", "XQI", "JXQ", "Q"} {
+		if len([]rune(s)) > len([]rune(watermark)) && strings.HasSuffix(s, watermark) {
+			s = strings.TrimSuffix(s, watermark)
+		}
+	}
 	s = strings.TrimRight(s, "；;，, ")
 	return s
 }
