@@ -126,8 +126,8 @@ func (s *Service) retryOneUpload(ctx context.Context, tenantID, actor, batchID s
 	if err != nil {
 		return b, err
 	}
-	if b.CreatedBy != "account:"+actor {
-		return b, fail(403, "UPLOAD_RETRY_FORBIDDEN", "只能重试自己批次中的失败文件")
+	if b.CreatedBy != actor {
+		return b, fail(403, "UPLOAD_RETRY_FORBIDDEN", "只能重试自己批次中的文件")
 	}
 	if _, err := s.processUpload(ctx, tenantID, actor, batchID, p); err != nil {
 		return b, err

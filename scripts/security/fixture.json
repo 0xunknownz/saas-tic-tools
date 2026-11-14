@@ -392,45 +392,6 @@
       ]
     },
     {
-      "name": "seedReportArchiveArchiveRevision",
-      "kind": "http",
-      "session": "tenantA",
-      "method": "GET",
-      "path": "/api/tenant/v1/report-archive/reports/${archiveReportId}",
-      "capture": {
-        "archiveRevision": "body.revision"
-      },
-      "expect": [
-        200
-      ]
-    },
-    {
-      "name": "seedReportArchiveArchiveFields",
-      "kind": "http",
-      "session": "tenantA",
-      "method": "PATCH",
-      "path": "/api/tenant/v1/report-archive/reports/${archiveReportId}",
-      "json": {
-        "reportNumber": "SEC-2026-0001",
-        "reportName": "Security suite report",
-        "productName": "Security sample",
-        "institution": "Security Institution",
-        "clientUnit": "Security client",
-        "inspectedUnit": "Security client",
-        "manufacturer": "",
-        "model": "",
-        "category": "",
-        "basis": "",
-        "reportDate": "2026-01-05",
-        "conclusion": "所检项目合格",
-        "details": [],
-        "expectedRevision": "${int:archiveRevision}"
-      },
-      "expect": [
-        200
-      ]
-    },
-    {
       "name": "seedReportArchiveVoid",
       "kind": "http",
       "session": "tenantA",
@@ -617,6 +578,58 @@
       },
       "expect": [
         201
+      ]
+    },
+    {
+      "name": "seedReportArchiveArchiveRevisionLate",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${archiveReportId}",
+      "capture": {
+        "archiveRevision": "body.revision"
+      },
+      "expect": [
+        200
+      ]
+    },
+    {
+      "name": "seedReportArchiveArchiveFieldsLate",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "PATCH",
+      "path": "/api/tenant/v1/report-archive/reports/${archiveReportId}",
+      "json": {
+        "reportNumber": "SEC-2026-0001",
+        "reportName": "Security suite report",
+        "productName": "Security sample",
+        "institution": "Security Institution",
+        "clientUnit": "Security client",
+        "inspectedUnit": "Security client",
+        "manufacturer": "",
+        "model": "",
+        "category": "",
+        "basis": "",
+        "reportDate": "2026-01-05",
+        "conclusion": "所检项目合格",
+        "details": [],
+        "expectedRevision": "${int:archiveRevision}"
+      },
+      "expect": [
+        200
+      ]
+    },
+    {
+      "name": "seedReportArchiveUpdateRevisionLate",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${updateReportId}",
+      "capture": {
+        "updateRevision": "body.revision"
+      },
+      "expect": [
+        200
       ]
     }
   ],

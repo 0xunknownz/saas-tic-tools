@@ -367,13 +367,13 @@
     "/api/tenant/v1/report-archive/uploads": {
       "post": {
         "operationId": "createReportArchiveUpload",
-        "summary": "Upload a batch of PDFs",
+        "summary": "Upload a batch of PDFs (any tenant member; batch ownership enforced server-side)",
         "security": [
           {
             "tenantSession": []
           }
         ],
-        "x-permission": "tenant.data.write",
+        "x-permission": "none",
         "x-tenant-scoped": true,
         "responses": {
           "201": {
@@ -457,13 +457,13 @@
     "/api/tenant/v1/report-archive/uploads/{id}/items": {
       "post": {
         "operationId": "appendReportArchiveUploadItem",
-        "summary": "Retry or append one file to a batch",
+        "summary": "Retry or append one file to a batch (any tenant member; batch ownership enforced server-side)",
         "security": [
           {
             "tenantSession": []
           }
         ],
-        "x-permission": "tenant.data.write",
+        "x-permission": "none",
         "x-tenant-scoped": true,
         "responses": {
           "200": {

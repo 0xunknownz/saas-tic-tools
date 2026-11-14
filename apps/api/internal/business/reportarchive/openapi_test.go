@@ -62,7 +62,7 @@ func TestReportArchiveRoutesMatchOpenAPI(t *testing.T) {
 			}
 			if operation.TenantScoped {
 				tenantRoutes++
-				if operation.Permission != "tenant.data.read" && operation.Permission != "tenant.data.write" {
+				if operation.Permission != "tenant.data.read" && operation.Permission != "tenant.data.write" && operation.Permission != "none" {
 					t.Errorf("%s: tenant route permission %q", pattern, operation.Permission)
 				}
 			} else if operation.Permission != platformTemplatesPermission {

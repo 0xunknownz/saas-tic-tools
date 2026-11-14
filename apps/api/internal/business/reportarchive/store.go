@@ -96,8 +96,12 @@ func (s *store) reportForUpdate(ctx context.Context, tx db.DBTX, tenantID, id st
 	if !validUUID(id) {
 		return Report{}, ErrNotFound
 	}
-	return scanReport(tx.QueryRow(ctx, `SELECT `+reportColumns+` FROM report_reports r JOIN report_files f ON f.id = r.file_id AND f.tenant_id = r.tenant_id
+	r, err := scanReport(tx.QueryRow(ctx, `SELECT `+reportColumns+` FROM report_reports r JOIN report_files f ON f.id = r.file_id AND f.tenant_id = r.tenant_id
 		WHERE r.tenant_id = $1 AND r.id = $2 FOR UPDATE OF r`, tenantID, id))
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Report{}, ErrNotFound
+	}
+	return r, err
 }
 
 func (s *store) findReportByFile(ctx context.Context, tenantID, fileID string) (Report, error) {
@@ -517,7 +521,7 @@ func (s *store) getRuleTx(ctx context.Context, tx db.DBTX, tenantID, id string) 
 	var r Rule
 	var raw []byte
 	err := tx.QueryRow(ctx, `SELECT id::text, COALESCE(tenant_id::text,''), template_key, name, version, status, config, created_by, created_at, activated_at, retired_at
-		FROM report_rules WHERE id=$1 AND (tenant_id=$2 OR tenant_id IS NULL)`, id, tenantID).
+		FROM report_rules WHERE id=$1 AND (tenant_id = NULLIF($2,'')::uuid OR tenant_id IS NULL)`, id, tenantID).
 		Scan(&r.ID, &r.TenantID, &r.TemplateKey, &r.Name, &r.Version, &r.Status, &raw, &r.CreatedBy, &r.CreatedAt, &r.ActivatedAt, &r.RetiredAt)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return r, ErrNotFound
