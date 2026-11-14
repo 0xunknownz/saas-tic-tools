@@ -1,6 +1,6 @@
 # 检测报告档案一期 PRD
 
-状态：一期已实现；验收记录见 [report-archive-acceptance.md](report-archive-acceptance.md)。真实云 OCR 与独立样本验收待项目方提供材料。
+状态：一期已实现；OCR 供应商由项目方指定为 PaddleOCR（AI Studio 官方 API）。验收记录见 [report-archive-acceptance.md](report-archive-acceptance.md)。真实云 OCR 与独立样本验收待项目方提供访问令牌与样本。
 GitHub PRD：[Issue #15](https://github.com/0xunknownz/saas-tic-tools/issues/15)。
 日期：2026-11-14（Asia/Shanghai）。
 代码基线：main / 86ff8b60fb3669fa786e08e41937718b90e29ba7。

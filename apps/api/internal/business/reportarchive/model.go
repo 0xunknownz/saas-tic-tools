@@ -37,11 +37,21 @@ func (c Config) withDefaults() Config {
 	if c.OCRProvider == "" {
 		c.OCRProvider = "disabled"
 	}
-	if c.OCREndpoint == "" {
-		c.OCREndpoint = "https://api.ocr.space/parse/image"
-	}
-	if c.OCRModel == "" {
-		c.OCRModel = "ocrspace-engine2"
+	switch c.OCRProvider {
+	case "paddleocr":
+		if c.OCREndpoint == "" {
+			c.OCREndpoint = "https://paddleocr.aistudio-app.com"
+		}
+		if c.OCRModel == "" {
+			c.OCRModel = "PP-OCRv6"
+		}
+	default:
+		if c.OCREndpoint == "" {
+			c.OCREndpoint = "https://api.ocr.space/parse/image"
+		}
+		if c.OCRModel == "" {
+			c.OCRModel = "ocrspace-engine2"
+		}
 	}
 	if c.OCRTimeoutSeconds <= 0 {
 		c.OCRTimeoutSeconds = 90

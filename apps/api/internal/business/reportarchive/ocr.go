@@ -4,13 +4,17 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
-	"strconv"
+	"os"
+	"sort"
 	"strings"
 	"time"
+
+	paddleocr "github.com/PaddlePaddle/PaddleOCR/api_sdk/go"
 )
 
 type ocrResult struct {
@@ -43,6 +47,8 @@ func newOCRProvider(cfg Config) ocrProvider {
 	switch cfg.OCRProvider {
 	case "ocrspace":
 		return &ocrSpaceProvider{endpoint: cfg.OCREndpoint, apiKey: cfg.OCRAPIKey, model: cfg.OCRModel, client: &http.Client{Timeout: time.Duration(cfg.OCRTimeoutSeconds) * time.Second}}
+	case "paddleocr":
+		return &paddleProvider{baseURL: cfg.OCREndpoint, token: cfg.OCRAPIKey, model: cfg.OCRModel, timeout: time.Duration(cfg.OCRTimeoutSeconds) * time.Second}
 	default:
 		return disabledOCR{}
 	}
@@ -197,7 +203,195 @@ func ocrPageText(pages []OCRPage) string {
 	return strings.Join(parts, "\f")
 }
 
-func parsePositiveInt(s string) int {
-	n, _ := strconv.Atoi(s)
-	return n
+// paddleProvider calls the official PaddleOCR hosted API (AI Studio access token).
+// The SDK submits a PDF job, polls it, and returns per-page pruned results; this adapter keeps the
+// raw result as data, extracts page text in reading order, and classifies failures for retry.
+type paddleProvider struct {
+	baseURL string
+	token   string
+	model   string
+	timeout time.Duration
+}
+
+func (p *paddleProvider) Extract(ctx context.Context, fileName string, data []byte, pageHint int) (ocrResult, error) {
+	if strings.TrimSpace(p.token) == "" {
+		return ocrResult{}, &ocrFailure{Code: "OCR_CREDENTIAL_MISSING", Message: "PaddleOCR 访问令牌未配置", Retryable: false}
+	}
+	tmp, err := os.CreateTemp("", "paddleocr-*.pdf")
+	if err != nil {
+		return ocrResult{}, &ocrFailure{Code: "OCR_INPUT_WRITE", Message: "无法准备 OCR 输入文件", Retryable: true, Err: err}
+	}
+	defer os.Remove(tmp.Name())
+	if _, err := tmp.Write(data); err != nil {
+		_ = tmp.Close()
+		return ocrResult{}, &ocrFailure{Code: "OCR_INPUT_WRITE", Message: "无法写入 OCR 输入文件", Retryable: true, Err: err}
+	}
+	_ = tmp.Close()
+
+	opts := []paddleocr.ClientOption{paddleocr.WithToken(p.token)}
+	if p.baseURL != "" {
+		opts = append(opts, paddleocr.WithBaseURL(p.baseURL))
+	}
+	if p.timeout > 0 {
+		opts = append(opts, paddleocr.WithRequestTimeout(p.timeout), paddleocr.WithPollTimeout(p.timeout))
+	}
+	client, err := paddleocr.NewClient(opts...)
+	if err != nil {
+		return ocrResult{}, &ocrFailure{Code: "OCR_CREDENTIAL_MISSING", Message: "PaddleOCR 客户端初始化失败：" + shortError(err), Retryable: false, Err: err}
+	}
+	model := p.model
+	if model == "" {
+		model = paddleocr.PPOCRv6
+	}
+	result, err := client.OCR(ctx, &paddleocr.OCRRequest{Model: model, FilePath: tmp.Name()})
+	if err != nil {
+		return ocrResult{}, classifyPaddleError(err)
+	}
+	if result == nil {
+		return ocrResult{}, &ocrFailure{Code: "OCR_RESPONSE_INVALID", Message: "PaddleOCR 返回空结果", Retryable: false}
+	}
+	pages := make([]OCRPage, 0, len(result.Pages))
+	for _, page := range result.Pages {
+		text := paddlePageText(page.PrunedResult)
+		if strings.TrimSpace(text) == "" {
+			// Empty pages are possible for blank pages, but a page must still exist so the physical
+			// page mapping stays complete.
+			text = ""
+		}
+		pages = append(pages, OCRPage{Page: len(pages) + 1, Text: text})
+	}
+	if len(pages) == 0 {
+		return ocrResult{}, &ocrFailure{Code: "OCR_NO_TEXT", Message: "PaddleOCR 未返回页面结果", Retryable: false}
+	}
+	if pageHint > 0 && len(pages) != pageHint {
+		return ocrResult{}, &ocrFailure{Code: "OCR_PAGE_COUNT_MISMATCH", Message: fmt.Sprintf("PaddleOCR 返回 %d 页，PDF 有 %d 页，需管理员核对", len(pages), pageHint), Retryable: false}
+	}
+	raw, err := json.Marshal(result)
+	if err != nil {
+		raw = []byte("{}")
+	}
+	if len(raw) > 20<<20 {
+		// Keep the response bounded while recording that the raw payload was truncated; page text
+		// remains complete and is stored separately.
+		raw, _ = json.Marshal(map[string]any{"jobId": result.JobID, "pageCount": len(result.Pages), "truncated": true})
+	}
+	return ocrResult{Provider: "paddleocr", Model: model, Pages: pages, Raw: raw}, nil
+}
+
+func classifyPaddleError(err error) *ocrFailure {
+	var auth *paddleocr.AuthError
+	var invalid *paddleocr.InvalidRequestError
+	var rate *paddleocr.RateLimitError
+	var unavailable *paddleocr.ServiceUnavailableError
+	var apiErr *paddleocr.APIError
+	var failed *paddleocr.JobFailedError
+	var reqTimeout *paddleocr.RequestTimeoutError
+	var pollTimeout *paddleocr.PollTimeoutError
+	var netErr *paddleocr.NetworkError
+	var fileNotFound *paddleocr.FileNotFoundError
+	var responseErr *paddleocr.ResponseFormatError
+	var parseErr *paddleocr.ResultParseError
+	msg := shortError(err)
+	switch {
+	case errors.As(err, &auth):
+		return &ocrFailure{Code: "OCR_UNAUTHORIZED", Message: "PaddleOCR 访问令牌无效或过期", Retryable: false, Err: err}
+	case errors.As(err, &invalid), errors.As(err, &fileNotFound), errors.As(err, &failed):
+		return &ocrFailure{Code: "OCR_REQUEST_INVALID", Message: "PaddleOCR 请求被拒绝：" + msg, Retryable: false, Err: err}
+	case errors.As(err, &rate):
+		return &ocrFailure{Code: "OCR_RATE_LIMITED", Message: "PaddleOCR 限流", Retryable: true, Err: err}
+	case errors.As(err, &unavailable), errors.As(err, &netErr), errors.As(err, &reqTimeout), errors.As(err, &pollTimeout):
+		return &ocrFailure{Code: "OCR_TRANSIENT", Message: "PaddleOCR 临时故障：" + msg, Retryable: true, Err: err}
+	case errors.As(err, &apiErr):
+		if apiErr.StatusCode >= 500 {
+			return &ocrFailure{Code: "OCR_UPSTREAM", Message: fmt.Sprintf("PaddleOCR 服务返回 %d", apiErr.StatusCode), Retryable: true, Err: err}
+		}
+		return &ocrFailure{Code: "OCR_HTTP", Message: msg, Retryable: false, Err: err}
+	case errors.As(err, &responseErr), errors.As(err, &parseErr):
+		return &ocrFailure{Code: "OCR_RESPONSE_INVALID", Message: "PaddleOCR 响应无法解析：" + msg, Retryable: false, Err: err}
+	default:
+		return &ocrFailure{Code: "OCR_ERROR", Message: msg, Retryable: true, Err: err}
+	}
+}
+
+// paddlePageText extracts reading-order text from a PaddleOCR pruned result. The result shape has
+// changed across model versions (rec_texts, data rows, generic text fields), so the extractor
+// accepts all known shapes and keeps array order.
+func paddlePageText(value any) string {
+	out := []string{}
+	seen := map[string]bool{}
+	var walk func(v any, depth int)
+	walk = func(v any, depth int) {
+		if depth > 24 || len(out) > 20000 {
+			return
+		}
+		switch t := v.(type) {
+		case string:
+			text := strings.TrimSpace(t)
+			if text != "" && !seen[text] {
+				seen[text] = true
+				out = append(out, text)
+			}
+		case []any:
+			allStrings := true
+			for _, item := range t {
+				if _, ok := item.(string); !ok {
+					allStrings = false
+					break
+				}
+			}
+			if allStrings {
+				for _, item := range t {
+					walk(item, depth+1)
+				}
+				return
+			}
+			// Common OCR shapes: ["text", score] or [[box...], "text", score].
+			if len(t) >= 2 {
+				if s, ok := t[1].(string); ok && len(t) <= 4 {
+					text := strings.TrimSpace(s)
+					if text != "" && !seen[text] {
+						seen[text] = true
+						out = append(out, text)
+					}
+					return
+				}
+			}
+			for _, item := range t {
+				walk(item, depth+1)
+			}
+		case map[string]any:
+			// Prefer known text arrays before walking other keys so box metadata is not mistaken
+			// for text.
+			for _, key := range []string{"rec_texts", "texts", "strs", "labels"} {
+				if arr, ok := t[key].([]any); ok {
+					walk(arr, depth+1)
+					return
+				}
+			}
+			for _, key := range []string{"rec_text", "text", "str", "label", "content", "value"} {
+				if s, ok := t[key].(string); ok {
+					text := strings.TrimSpace(s)
+					if text != "" && !seen[text] {
+						seen[text] = true
+						out = append(out, text)
+					}
+				}
+			}
+			keys := make([]string, 0, len(t))
+			for key := range t {
+				switch key {
+				case "rec_texts", "texts", "strs", "labels", "rec_text", "text", "str", "label", "content", "value":
+					continue
+				default:
+					keys = append(keys, key)
+				}
+			}
+			sort.Strings(keys)
+			for _, key := range keys {
+				walk(t[key], depth+1)
+			}
+		}
+	}
+	walk(value, 0)
+	return strings.Join(out, "\n")
 }

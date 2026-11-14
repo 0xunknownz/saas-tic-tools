@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/0xunknownz/saas.starter v0.2.1
+	github.com/PaddlePaddle/PaddleOCR/api_sdk/go v0.2.0
 	github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.1
 	github.com/crewjam/saml v0.4.14
 	github.com/jackc/pgx/v5 v5.7.2
