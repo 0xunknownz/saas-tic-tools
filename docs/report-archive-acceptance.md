@@ -169,6 +169,8 @@ OCR 供应商由项目方指定为 **PaddleOCR**（AI Studio 官方 API）。后
 
 真实供应商：PaddleOCR（AI Studio 官方 API），模型 `PP-OCRv6`，令牌仅存于服务端 `REPORT_OCR_API_KEY`。
 
+耗时（`report_ocr_runs` 实测）：授权样本 6 页成功运行 4.8 秒；独立样本 8 页成功运行 177.3 秒（此前另有排队失败）。旧默认 90 秒超时不足，默认值已提高到 300 秒。
+
 授权客户报告实测结果：
 
 - 上传→OCR→解析→候选全链路跑通；OCR 运行保存原始 JSONL、逐页文本与物理页码。
@@ -207,7 +209,7 @@ sh scripts/security/run.sh           # Foundation 安全套件 pass：113 操作
 | `REPORT_OCR_ENDPOINT` | OCR HTTP 端点（默认 OCR.space） |
 | `REPORT_OCR_API_KEY` | 仅服务端；`ocrspace` / `paddleocr` 时必填（PaddleOCR 为 AI Studio Access Token） |
 | `REPORT_OCR_MODEL` | 记录到 OCR 运行 |
-| `REPORT_OCR_TIMEOUT_SECONDS` | 默认 90 |
+| `REPORT_OCR_TIMEOUT_SECONDS` | 默认 300（实测 6 页 4.8 秒、8 页 177 秒；旧默认 90 秒不足） |
 | `REPORT_OCR_MAX_CONCURRENCY` | 默认 2 |
 | `REPORT_WORKER_POLL_MS` | 队列轮询，默认 1000 |
 | `REPORT_RETRY_BASE_SECONDS` | 退避基数，默认 5 |

@@ -139,7 +139,7 @@ func Load() (Config, error) {
 		ReportOCREndpoint:       os.Getenv("REPORT_OCR_ENDPOINT"),
 		ReportOCRAPIKey:         os.Getenv("REPORT_OCR_API_KEY"),
 		ReportOCRModel:          os.Getenv("REPORT_OCR_MODEL"),
-		ReportOCRTimeoutSeconds: 90,
+		ReportOCRTimeoutSeconds: 300,
 		ReportOCRMaxConcurrency: 2,
 		ReportPollMilliseconds:  1000,
 		ReportRetryBaseSeconds:  5,
