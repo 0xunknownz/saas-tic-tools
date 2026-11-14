@@ -161,8 +161,10 @@ func (s *Service) handleJobError(ctx context.Context, j job, err error) {
 func (s *Service) setReview(ctx context.Context, j job, stage, reason string) {
 	ctx = scope(ctx, j.TenantID)
 	_ = s.store.db.InTx(ctx, db.TxOptions{}, func(ctx context.Context, tx db.DBTX) error {
+		// Processing status is not a content edit: it must not invalidate an administrator's
+		// optimistic revision, or a background failure races every PATCH after upload.
 		tag, err := tx.Exec(ctx, `UPDATE report_reports SET archive_status='needs_review', review_stage=$3, review_reason=$4,
-			revision=revision+1, updated_at=now() WHERE tenant_id=$1 AND id=$2 AND voided_at IS NULL AND archive_status <> 'archived'`,
+			updated_at=now() WHERE tenant_id=$1 AND id=$2 AND voided_at IS NULL AND archive_status <> 'archived'`,
 			j.TenantID, j.ReportID, stage, reason)
 		if err != nil {
 			return err
