@@ -150,3 +150,24 @@ func TestIdentityProviderConfigRejectsMalformedJSON(t *testing.T) {
 		t.Fatal("malformed IDENTITY_PROVIDERS accepted")
 	}
 }
+
+func TestReportOCRProviderConfiguration(t *testing.T) {
+	t.Setenv("APP_ENV", "development")
+	t.Setenv("REPORT_OCR_PROVIDER", "paddleocr")
+	t.Setenv("REPORT_OCR_API_KEY", "")
+	if _, err := Load(); err == nil || !strings.Contains(err.Error(), "paddleocr") {
+		t.Fatalf("paddleocr without token accepted or misreported: %v", err)
+	}
+	t.Setenv("REPORT_OCR_API_KEY", "token-from-deployment")
+	c, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.ReportOCRProvider != "paddleocr" || c.ReportOCRAPIKey != "token-from-deployment" {
+		t.Fatalf("report OCR config: %+v", c)
+	}
+	t.Setenv("REPORT_OCR_PROVIDER", "unknown-provider")
+	if _, err := Load(); err == nil {
+		t.Fatal("unknown report OCR provider accepted")
+	}
+}
