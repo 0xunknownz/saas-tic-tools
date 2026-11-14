@@ -15,22 +15,22 @@ import (
 // it to the generated Identity config; the Identity package owns semantic
 // validation (realm/protocol rules, URL scheme, duplicate ids and clock skew).
 type IdentityProvider struct {
-	ID               string `json:"id"`
-	Protocol         string `json:"protocol"`
-	Realm            string `json:"realm"`
-	Enabled          *bool  `json:"enabled,omitempty"`
-	IssuerURL        string `json:"issuerURL"`
-	ClientID         string `json:"clientID"`
-	ClientSecret     string `json:"clientSecret"`
-	RedirectURL      string `json:"redirectURL"`
-	LinkRedirectURL  string `json:"linkRedirectURL,omitempty"`
-	MetadataURL      string `json:"metadataURL,omitempty"`
-	EntityID         string `json:"entityID,omitempty"`
-	ACSURL           string `json:"acsURL,omitempty"`
-	SPPrivateKey     string `json:"spPrivateKey,omitempty"`
-	SPCertificate    string `json:"spCertificate,omitempty"`
-	EmailAttribute   string `json:"emailAttribute,omitempty"`
-	ClockSkewSeconds int    `json:"clockSkewSeconds"`
+	ID               string   `json:"id"`
+	Protocol         string   `json:"protocol"`
+	Realm            string   `json:"realm"`
+	Enabled          *bool    `json:"enabled,omitempty"`
+	IssuerURL        string   `json:"issuerURL"`
+	ClientID         string   `json:"clientID"`
+	ClientSecret     string   `json:"clientSecret"`
+	RedirectURL      string   `json:"redirectURL"`
+	LinkRedirectURL  string   `json:"linkRedirectURL,omitempty"`
+	MetadataURL      string   `json:"metadataURL,omitempty"`
+	EntityID         string   `json:"entityID,omitempty"`
+	ACSURL           string   `json:"acsURL,omitempty"`
+	SPPrivateKey     string   `json:"spPrivateKey,omitempty"`
+	SPCertificate    string   `json:"spCertificate,omitempty"`
+	EmailAttribute   string   `json:"emailAttribute,omitempty"`
+	ClockSkewSeconds int      `json:"clockSkewSeconds"`
 	TrustedMFAAMR    []string `json:"trustedMFAAMR,omitempty"`
 }
 
@@ -90,6 +90,19 @@ type Config struct {
 	// JSON array in IDENTITY_PROVIDERS. It is empty when OIDC is not configured;
 	// a disabled entry is retained but not registered.
 	IdentityProviders []IdentityProvider
+
+	// Report archive phase 1: cloud OCR is optional and credentials stay server-side.
+	ReportOCRProvider       string
+	ReportOCREndpoint       string
+	ReportOCRAPIKey         string
+	ReportOCRModel          string
+	ReportOCRTimeoutSeconds int
+	ReportOCRMaxConcurrency int
+	ReportPollMilliseconds  int
+	ReportRetryBaseSeconds  int
+	ReportMaxUploadBytes    int64
+	ReportMaxUploadFiles    int
+	ReportMaxPDFPages       int
 }
 
 func Load() (Config, error) {
@@ -122,6 +135,17 @@ func Load() (Config, error) {
 		LicenseVerificationKeys: os.Getenv("LICENSE_VERIFICATION_KEYS"),
 		LicenseProductVersion:   os.Getenv("LICENSE_PRODUCT_VERSION"),
 		LicenseInstanceID:       os.Getenv("LICENSE_INSTANCE_ID"),
+		ReportOCRProvider:       get("REPORT_OCR_PROVIDER", "disabled"),
+		ReportOCREndpoint:       os.Getenv("REPORT_OCR_ENDPOINT"),
+		ReportOCRAPIKey:         os.Getenv("REPORT_OCR_API_KEY"),
+		ReportOCRModel:          os.Getenv("REPORT_OCR_MODEL"),
+		ReportOCRTimeoutSeconds: 90,
+		ReportOCRMaxConcurrency: 2,
+		ReportPollMilliseconds:  1000,
+		ReportRetryBaseSeconds:  5,
+		ReportMaxUploadBytes:    50_000_000,
+		ReportMaxUploadFiles:    50,
+		ReportMaxPDFPages:       100,
 	}
 	// Provider bindings are a typed deployment input. Decode with unknown fields
 	// rejected so a per-tenant IdP (tenantID) or a typo cannot be ignored; the
@@ -172,6 +196,44 @@ func Load() (Config, error) {
 		}
 		c.MeterWindowSeconds = window
 	}
+	for name, target := range map[string]*int{
+		"REPORT_OCR_TIMEOUT_SECONDS": &c.ReportOCRTimeoutSeconds,
+		"REPORT_OCR_MAX_CONCURRENCY": &c.ReportOCRMaxConcurrency,
+		"REPORT_WORKER_POLL_MS":      &c.ReportPollMilliseconds,
+		"REPORT_RETRY_BASE_SECONDS":  &c.ReportRetryBaseSeconds,
+		"REPORT_MAX_UPLOAD_FILES":    &c.ReportMaxUploadFiles,
+		"REPORT_MAX_PDF_PAGES":       &c.ReportMaxPDFPages,
+	} {
+		if raw := os.Getenv(name); raw != "" {
+			n, err := strconv.Atoi(raw)
+			if err != nil {
+				return c, fmt.Errorf("%s must be a number", name)
+			}
+			*target = n
+		}
+	}
+	if raw := os.Getenv("REPORT_MAX_UPLOAD_BYTES"); raw != "" {
+		n, err := strconv.ParseInt(raw, 10, 64)
+		if err != nil {
+			return c, fmt.Errorf("REPORT_MAX_UPLOAD_BYTES must be a number")
+		}
+		c.ReportMaxUploadBytes = n
+	}
+	switch c.ReportOCRProvider {
+	case "disabled":
+	case "ocrspace":
+		if strings.TrimSpace(c.ReportOCRAPIKey) == "" {
+			return c, fmt.Errorf("REPORT_OCR_PROVIDER=ocrspace requires REPORT_OCR_API_KEY")
+		}
+	default:
+		return c, fmt.Errorf("REPORT_OCR_PROVIDER must be disabled or ocrspace")
+	}
+	if c.ReportOCRTimeoutSeconds < 1 || c.ReportOCRTimeoutSeconds > 600 || c.ReportOCRMaxConcurrency < 1 || c.ReportOCRMaxConcurrency > 16 ||
+		c.ReportPollMilliseconds < 100 || c.ReportPollMilliseconds > 60000 || c.ReportRetryBaseSeconds < 1 || c.ReportRetryBaseSeconds > 3600 ||
+		c.ReportMaxUploadBytes < 1 || c.ReportMaxUploadFiles < 1 || c.ReportMaxUploadFiles > 50 || c.ReportMaxPDFPages < 1 {
+		return c, fmt.Errorf("report archive limits are outside the supported range")
+	}
+
 	// Provider choices are validated at startup: a deployment that selects SMTP
 	// or object storage but omits required settings must not start and discover
 	// the gap on the first email or upload.

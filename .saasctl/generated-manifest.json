@@ -1,16 +1,16 @@
 {
   "generatorVersion": "0.2.1",
-  "inputDigest": "2242b53283065c157b092daa53071931b92dd28a014c6daf2a668df6279d2073",
+  "inputDigest": "2fde1793929b5425cd2ec9b99f91bfaadc1b858f2b1fef07c64a512f03409712",
   "files": {
     ".saasctl/openapi/admin-auth.json": "4a3ff890f16ad86f78f44112382bd539bae684494558cea40d428d8ac309faba",
     ".saasctl/openapi/jobs.json": "34d339114967133a7198cbfafd4c09e47aff0fe7e65ba9b49e305e13ea71b711",
     ".saasctl/openapi/tenant-realm.json": "ec3510c9f67411ed638fe2a89ccbad41bd4433232c0fd67bee076ef225fd1690",
     ".saasctl/openapi/tenant.json": "3aa0962a3be1f50a0a98ace4b58c6a5587e83bebe75955da968886a73dfc70e6",
-    "apps/api/internal/bootstrap/generated/compose_gen.go": "1f3362e441aee3d942b0e7c0ebe4c6ac09e1c3b81157f67a7e9b0b342b2151d3",
-    "apps/api/internal/bootstrap/generated/composition.json": "98498920990dd6249625b1834a816d7c236078d86ab980ffb6f7c04879722a61",
-    "apps/api/internal/bootstrap/generated/config_gen.go": "b9c7161001f2b7a15abca3d4ba79b576e72b6f5692d484dc12048a322c612600",
-    "apps/api/internal/bootstrap/generated/migrations_gen.go": "08b8d6210a065d5e32068f7c8a1c14e8fdcd5a0f2430c1cf9ea6c66f044b7d69",
-    "apps/api/internal/bootstrap/generated/permissions_gen.go": "320ea26c0d1da4189d280d2eae06c6f45d1652fa8ca04697e0c4e9ec14188cf8",
+    "apps/api/internal/bootstrap/generated/compose_gen.go": "59a4442f5aadd3ac4ea827232d3bf6b4141754d9bd75f1716c963db2cca62b89",
+    "apps/api/internal/bootstrap/generated/composition.json": "8314d6a912072760be0cde8bd2ec418012bef562de28cc5b5710ae5f4e8e8941",
+    "apps/api/internal/bootstrap/generated/config_gen.go": "2cc6ceefe18cf568831c2a91f1a0d1c2adca875d97f1e40208d48d123b32b353",
+    "apps/api/internal/bootstrap/generated/migrations_gen.go": "d8e8a161416dae95a674d9bb09e5a228bf3aeb89d42b4c83ad656734ce5c2ee2",
+    "apps/api/internal/bootstrap/generated/permissions_gen.go": "c4824a1aeeb2136a0c51c2222a734d30c2aed5c2974b58fab121f80db5d75805",
     "apps/api/internal/bootstrap/generated/product_gen.go": "81fe5c9f464bc6eecbd28d450083d19f99ff6320c24ad6f663337a05581af32e"
   }
 }

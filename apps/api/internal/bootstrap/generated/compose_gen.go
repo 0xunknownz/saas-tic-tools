@@ -23,16 +23,17 @@ import (
 	tenantPlugin "github.com/0xunknownz/saas.starter/foundation/tenant"
 	"net/http"
 	productExamplePlugin "saas-tic-tools/apps/api/internal/business/example"
+	productReportarchivePlugin "saas-tic-tools/apps/api/internal/business/reportarchive"
 	productTestitemsPlugin "saas-tic-tools/apps/api/internal/business/testitems"
 	"strings"
 )
 
 // Digest identifies the plugin composition this code was generated from.
-const Digest = "2242b53283065c157b092daa53071931b92dd28a014c6daf2a668df6279d2073"
+const Digest = "2fde1793929b5425cd2ec9b99f91bfaadc1b858f2b1fef07c64a512f03409712"
 
 // Plugins is the set of canonical plugin ids in this composition, so the composition root can
 // supply settings only for plugins that exist.
-var Plugins = map[string]bool{"foundation.db": true, "foundation.audit": true, "foundation.entitlement": true, "foundation.notification": true, "foundation.identity": true, "foundation.jobs": true, "foundation.license": true, "foundation.tenant": true, "foundation.authorization": true, "foundation.billing": true, "foundation.storage": true, "product.example": true, "product.testitems": true}
+var Plugins = map[string]bool{"foundation.db": true, "foundation.audit": true, "foundation.entitlement": true, "foundation.notification": true, "foundation.identity": true, "foundation.jobs": true, "foundation.license": true, "foundation.tenant": true, "foundation.authorization": true, "foundation.billing": true, "foundation.storage": true, "product.example": true, "product.reportarchive": true, "product.testitems": true}
 
 // Build constructs every plugin in dependency order, registers lifecycle components with rt
 // and mounts HTTP routes. It calls constructors directly: no reflection, no lookup by name.
@@ -98,6 +99,11 @@ func Build(ctx context.Context, cfg Config, rt plugin.Runtime) error {
 		return fmt.Errorf("product.example: new service: %w", err)
 	}
 	rt.Lifecycle.Add("product.example", productExampleSvc)
+	productReportarchiveSvc, err := productReportarchivePlugin.NewService(cfg.ProductReportarchive, productReportarchivePlugin.Deps{Audit: auditSvc, Db: dbSvc})
+	if err != nil {
+		return fmt.Errorf("product.reportarchive: new service: %w", err)
+	}
+	rt.Lifecycle.Add("product.reportarchive", productReportarchiveSvc)
 	productTestitemsSvc, err := productTestitemsPlugin.NewService(cfg.ProductTestitems, productTestitemsPlugin.Deps{Audit: auditSvc, Db: dbSvc, Identity: identitySvc})
 	if err != nil {
 		return fmt.Errorf("product.testitems: new service: %w", err)
@@ -171,6 +177,9 @@ func Build(ctx context.Context, cfg Config, rt plugin.Runtime) error {
 	}
 	if err := productExamplePlugin.RegisterHTTP(rt.Router, productExampleSvc, productExamplePlugin.HTTPDeps{}); err != nil {
 		return fmt.Errorf("product.example: register http: %w", err)
+	}
+	if err := productReportarchivePlugin.RegisterHTTP(rt.Router, productReportarchiveSvc, productReportarchivePlugin.HTTPDeps{Identity: identitySvc, Tenant: tenantSvc}); err != nil {
+		return fmt.Errorf("product.reportarchive: register http: %w", err)
 	}
 	if err := productTestitemsPlugin.RegisterHTTP(rt.Router, productTestitemsSvc, productTestitemsPlugin.HTTPDeps{Identity: identitySvc}); err != nil {
 		return fmt.Errorf("product.testitems: register http: %w", err)
