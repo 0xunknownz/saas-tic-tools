@@ -166,6 +166,10 @@ func TestReportOCRProviderConfiguration(t *testing.T) {
 	if c.ReportOCRProvider != "paddleocr" || c.ReportOCRAPIKey != "token-from-deployment" {
 		t.Fatalf("report OCR config: %+v", c)
 	}
+	// Real documents measured 177s end to end; the default must cover them.
+	if c.ReportOCRTimeoutSeconds != 300 {
+		t.Fatalf("default OCR timeout = %d, want 300", c.ReportOCRTimeoutSeconds)
+	}
 	t.Setenv("REPORT_OCR_PROVIDER", "unknown-provider")
 	if _, err := Load(); err == nil {
 		t.Fatal("unknown report OCR provider accepted")
