@@ -1,0 +1,121 @@
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { TenantApiError } from '@0xunknownz/foundation-tenant-ui'
+import { adminSession, memberFixture, mockApi, renderWithProviders } from '../../web/tests/helpers'
+import { MembersRoute } from '../src/routes/members'
+
+beforeAll(() => {
+  HTMLDialogElement.prototype.showModal = function () { this.open = true }
+  HTMLDialogElement.prototype.close = function () { this.open = false }
+})
+afterEach(cleanup)
+async function openInvite() {
+  const trigger = await screen.findByRole('button', { name: /邀请成员/ })
+  trigger.focus(); fireEvent.click(trigger)
+  return { trigger, dialog: screen.getByRole('dialog', { name: '邀请成员' }), email: screen.getByRole('textbox', { name: /成员邮箱/ }) }
+}
+
+describe('TIC member administration', () => {
+  it('validates email, keeps failed input, and retries the real mail method once while pending', async () => {
+    const api = mockApi({ inviteMember: vi.fn().mockRejectedValueOnce(new TenantApiError(503, 'UNAVAILABLE', '稍后重试')).mockResolvedValue({ id: 'invite-1' }) })
+    renderWithProviders(<MembersRoute/>, { api })
+    const { email } = await openInvite()
+    fireEvent.click(screen.getByRole('button', { name: '发送邀请' }))
+    expect(screen.getByRole('alert').id).toBe(email.getAttribute('aria-describedby'))
+    fireEvent.change(email, { target: { value: 'invalid' } })
+    fireEvent.click(screen.getByRole('button', { name: '手动邀请' }))
+    expect(screen.getByText('请输入有效的邮箱地址。')).toBeTruthy()
+    expect(api.issueManualInvitation).not.toHaveBeenCalled()
+    fireEvent.change(email, { target: { value: '  new@example.test ' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送邀请' }))
+    await screen.findByText('邀请请求失败，请检查网络后重试。')
+    expect((email as HTMLInputElement).value).toBe('new@example.test')
+    fireEvent.click(screen.getByRole('button', { name: '发送邀请' }))
+    fireEvent.click(screen.getByRole('button', { name: '手动邀请' }))
+    await screen.findByText(/邀请请求已受理/)
+    expect(api.inviteMember).toHaveBeenCalledTimes(2)
+    expect(api.inviteMember).toHaveBeenLastCalledWith('new@example.test')
+    expect(api.issueManualInvitation).not.toHaveBeenCalled()
+  })
+
+  it('enters and traps focus, handles Escape/cancel, restores focus, and clears manual credentials on reopening', async () => {
+    const api = mockApi()
+    renderWithProviders(<MembersRoute/>, { api })
+    const { trigger, email, dialog } = await openInvite()
+    expect(document.activeElement).toBe(email)
+    const close = within(dialog).getByRole('button', { name: '关闭侧栏' })
+    close.focus(); fireEvent.keyDown(close, { key: 'Tab' })
+    expect(document.activeElement).toBe(within(dialog).getByRole('button', { name: '关闭' }))
+    fireEvent.change(email, { target: { value: 'new@example.test' } })
+    fireEvent.click(screen.getByRole('button', { name: '手动邀请' }))
+    await screen.findByText('manual-credential-once')
+    expect(api.issueManualInvitation).toHaveBeenCalledWith('new@example.test')
+    fireEvent(dialog, new Event('cancel', { bubbles: false, cancelable: true }))
+    expect(screen.queryByRole('dialog')).toBeNull()
+    expect(document.activeElement).toBe(trigger)
+    fireEvent.click(trigger)
+    expect(screen.queryByText('manual-credential-once')).toBeNull()
+    expect((screen.getByRole('textbox', { name: /成员邮箱/ }) as HTMLInputElement).value).toBe('')
+  })
+
+  it('requires confirmation and reason, cancellation never submits, and refreshes after each real action', async () => {
+    const api = mockApi()
+    renderWithProviders(<MembersRoute/>, { api })
+    await screen.findByText('member@acme.test')
+    fireEvent.click(screen.getByText('移除成员'))
+    fireEvent.click(screen.getByRole('button', { name: '取消' }))
+    expect(api.removeMember).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByText('重置 MFA'))
+    fireEvent.click(screen.getByRole('button', { name: '确认重置 MFA' }))
+    expect(api.resetMemberMfa).not.toHaveBeenCalled()
+    expect(screen.getByRole('alert').textContent).toBe('请填写操作原因。')
+    fireEvent.change(screen.getByRole('textbox', { name: '操作原因' }), { target: { value: '  核实身份  ' } })
+    fireEvent.click(screen.getByRole('button', { name: '确认重置 MFA' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(api.resetMemberMfa).toHaveBeenCalledWith('acct-member', '核实身份')
+    fireEvent.click(screen.getByText('发送密码重置'))
+    fireEvent.change(screen.getByRole('textbox', { name: '操作原因' }), { target: { value: '成员申请' } })
+    fireEvent.click(screen.getByRole('button', { name: '确认发送密码重置' }))
+    await screen.findByText(/密码重置请求已受理/)
+    expect(api.sendMemberPasswordReset).toHaveBeenCalledWith('acct-member', '成员申请')
+    fireEvent.click(screen.getByText('移除成员'))
+    fireEvent.click(screen.getByRole('button', { name: '确认移除成员' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(api.removeMember).toHaveBeenCalledWith('acct-member')
+    expect(api.listMembers).toHaveBeenCalledTimes(4)
+  })
+
+  it('protects self and role permissions; never offers promotion and confirms demotion', async () => {
+    const api = mockApi({ listMembers: vi.fn(async () => ({ tenantId: 'tenant-1', members: [memberFixture({ accountId: 'acct-admin', role: 'tenant_admin' }), memberFixture({ accountId: 'other-admin', email: 'other@example.test', role: 'tenant_admin' })], total: 2, nextCursor: null })) })
+    renderWithProviders(<MembersRoute/>, { api })
+    await screen.findByText('当前账号')
+    expect(screen.getAllByText('管理', { selector: 'summary' })).toHaveLength(1)
+    expect(screen.getByText(/不支持提升/)).toBeTruthy()
+    fireEvent.click(screen.getByText('调整为普通成员'))
+    fireEvent.click(screen.getByRole('button', { name: '确认调整为普通成员' }))
+    await waitFor(() => expect(api.changeMemberRole).toHaveBeenCalledWith('other-admin', 'member'))
+    cleanup()
+    renderWithProviders(<MembersRoute/>, { api: mockApi({ session: vi.fn(async () => adminSession({ permissions: ['tenant.members.manage'] })) }) })
+    await screen.findByText('member@acme.test')
+    expect(screen.queryByText('调整为普通成员')).toBeNull()
+  })
+
+  it('shows list errors and empty results, and allows a failed dangerous action to retry without losing its reason', async () => {
+    const api = mockApi({ listMembers: vi.fn().mockRejectedValueOnce(new TenantApiError(503, 'UNAVAILABLE', '成员加载失败')).mockResolvedValue({ members: [memberFixture()], nextCursor: null, total: 1, tenantId: 'tenant-1' }), resetMemberMfa: vi.fn().mockRejectedValueOnce(new TenantApiError(503, 'UNAVAILABLE', '重置失败')).mockResolvedValue({ reset: true }) })
+    renderWithProviders(<MembersRoute/>, { api })
+    await screen.findByText(/成员列表.*失败/)
+    fireEvent.click(screen.getByRole('button', { name: '重新加载成员' }))
+    await screen.findByText('member@acme.test')
+    fireEvent.click(screen.getByText('重置 MFA'))
+    fireEvent.change(screen.getByRole('textbox', { name: '操作原因' }), { target: { value: '核实后重置' } })
+    fireEvent.click(screen.getByRole('button', { name: '确认重置 MFA' }))
+    await screen.findByText('重置请求失败，请检查网络后重试。')
+    expect((screen.getByRole('textbox', { name: '操作原因' }) as HTMLTextAreaElement).value).toBe('核实后重置')
+    fireEvent.click(screen.getByRole('button', { name: '确认重置 MFA' }))
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull())
+    expect(api.resetMemberMfa).toHaveBeenCalledTimes(2)
+    cleanup()
+    renderWithProviders(<MembersRoute/>, { api: mockApi({ listMembers: vi.fn(async () => ({ members: [], nextCursor: null, total: 0, tenantId: 'tenant-1' })) }) })
+    expect(await screen.findByText('当前租户暂无成员。')).toBeTruthy()
+  })
+})

@@ -7,7 +7,7 @@ import {
   useSession,
   type UseSessionResult,
 } from '@0xunknownz/foundation-tenant-ui'
-import { Nav } from './navigation'
+import { TenantLayout } from './navigation'
 
 const api = createHttpTenantApi()
 
@@ -60,16 +60,13 @@ function Guard({ children }: { children: ReactNode }) {
   }
   if (decision !== 'ok') return null
   return (
-    <>
-      <Nav />
-      {children}
-    </>
+    <TenantLayout>{children}</TenantLayout>
   )
 }
 
 function Root() {
   return (
-    <TenantUIProvider branding={{ productName: 'Saas Tic Tools', locale: 'zh-CN' }}>
+    <TenantUIProvider branding={{ productName: 'TIC 工具箱', locale: 'zh-CN' }}>
       <TenantApiProvider api={api}>
         <Guard>
           <Outlet />
