@@ -384,17 +384,24 @@ func (s *Service) finishParse(ctx context.Context, j job, report Report, rule *R
 		}
 		if status == "archived" {
 			// Claim the current slot only after all validation passed. A concurrent claimant hits the
-			// partial unique index and is converted to review, never to two valid versions.
+			// partial unique index; a savepoint lets the transaction continue after that expected error.
+			if _, err := tx.Exec(ctx, "SAVEPOINT archive_claim"); err != nil {
+				return err
+			}
 			tag, err := tx.Exec(ctx, `UPDATE report_reports SET archive_status='archived', is_current=true, archived_at=now(),
 				review_stage='', review_reason='', revision=revision+1, updated_at=now()
 				WHERE tenant_id=$1 AND id=$2 AND voided_at IS NULL`, j.TenantID, j.ReportID)
 			if err != nil {
+				_, _ = tx.Exec(ctx, "ROLLBACK TO SAVEPOINT archive_claim")
 				if pgErrCode(err) == "23505" {
 					_, _ = tx.Exec(ctx, `UPDATE report_reports SET archive_status='needs_review', is_current=false, review_stage='duplicate',
 						review_reason='同机构同报告编号已有有效版本，需管理员确认修订关系', revision=revision+1, updated_at=now()
 						WHERE tenant_id=$1 AND id=$2`, j.TenantID, j.ReportID)
 					return s.store.insertEventTx(ctx, tx, j.TenantID, j.ReportID, "duplicate_conflict", "system", "并发归档冲突", nil, nil)
 				}
+				return err
+			}
+			if _, err := tx.Exec(ctx, "RELEASE SAVEPOINT archive_claim"); err != nil {
 				return err
 			}
 			if tag.RowsAffected() == 0 {
