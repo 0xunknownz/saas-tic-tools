@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 import { TenantApiError } from '@0xunknownz/foundation-tenant-ui'
 import { billingSubscriptionFixture, mockApi, renderWithProviders } from '../../web/tests/helpers'
@@ -12,6 +12,24 @@ afterEach(cleanup)
 const catalogue = { provider: 'test', items: [{ code: 'pro', name: '专业版', description: '实际接口描述', features: ['advanced'], limits: { users: 10 }, prices: [{ interval: 'month' as const, currency: 'CNY', amountCents: 12901 }, { interval: 'year' as const, currency: 'USD', amountCents: 9900 }] }] }
 
 describe('TIC billing administration', () => {
+  it('warns that canceling an overdue subscription immediately ends grace-period entitlements', async () => {
+    let current = billingSubscriptionFixture({ status: 'past_due', periodEnd: '2026-01-01T00:00:00Z' })
+    const api = mockApi({
+      billingSubscription: vi.fn(async () => ({ subscription: current, provider: 'test' })),
+      cancelSubscription: vi.fn(async () => { current = { ...current, status: 'canceled', cancelAtPeriodEnd: true }; return current }),
+    })
+    renderWithProviders(<BillingRoute/>, { api })
+    fireEvent.click(await screen.findByRole('button', { name: '取消订阅' }))
+    const dialog = screen.getByRole('dialog', { name: '取消订阅' })
+    expect(within(dialog).getByText(/立即结束.*宽限期/)).toBeTruthy()
+    expect(within(dialog).queryByText(/已付服务保留至当前周期结束/)).toBeNull()
+    fireEvent.click(within(dialog).getByRole('button', { name: '确认取消订阅' }))
+    await screen.findByText('已取消')
+    expect(screen.queryByText('到期取消')).toBeNull()
+    expect(screen.queryByRole('button', { name: '取消订阅' })).toBeNull()
+    expect(api.cancelSubscription).toHaveBeenCalledTimes(1)
+  })
+
   it('keeps integer cents, interval and currency paired with every purchase; never fabricates missing prices', async () => {
     const api = mockApi({ listBillingPlans: vi.fn(async () => catalogue) })
     renderWithProviders(<BillingRoute/>, { api })
