@@ -207,6 +207,11 @@ func (a *apiHandler) serveFile(w http.ResponseWriter, req *http.Request, s sessi
 }
 
 func (a *apiHandler) upload(w http.ResponseWriter, req *http.Request, s session) {
+	// Multipart writes are cookie-authenticated too: enforce the same cross-origin rule before
+	// touching the body.
+	if !a.identity.GuardJSON(w, req, nil) {
+		return
+	}
 	files, cleanup, apiErr := readUploadParts(w, req, a.svc.cfg.MaxUploadFiles, a.svc.cfg.MaxUploadBytes)
 	defer cleanup()
 	if apiErr != nil {
@@ -240,6 +245,9 @@ func (a *apiHandler) getBatch(w http.ResponseWriter, req *http.Request, s sessio
 }
 
 func (a *apiHandler) retryUpload(w http.ResponseWriter, req *http.Request, s session) {
+	if !a.identity.GuardJSON(w, req, nil) {
+		return
+	}
 	files, cleanup, apiErr := readUploadParts(w, req, 1, a.svc.cfg.MaxUploadBytes)
 	defer cleanup()
 	if apiErr != nil {
@@ -383,6 +391,9 @@ func (a *apiHandler) createRule(w http.ResponseWriter, req *http.Request, s sess
 }
 
 func (a *apiHandler) activateRule(w http.ResponseWriter, req *http.Request, s session) {
+	if !a.identity.GuardJSON(w, req, nil) {
+		return
+	}
 	out, err := a.svc.activateRule(req.Context(), s.TenantID, s.Actor, req.PathValue("id"))
 	if err != nil {
 		writeError(w, err)
@@ -427,6 +438,9 @@ func (a *apiHandler) createTemplate(w http.ResponseWriter, req *http.Request) {
 }
 
 func (a *apiHandler) activateTemplate(w http.ResponseWriter, req *http.Request) {
+	if !a.identity.GuardJSON(w, req, nil) {
+		return
+	}
 	out, err := a.svc.activateBuiltinRule(req.Context(), "platform", req.PathValue("id"))
 	if err != nil {
 		writeError(w, err)

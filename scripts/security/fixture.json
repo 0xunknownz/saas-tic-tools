@@ -312,6 +312,312 @@
       "capture": {
         "productItemRevision": "body.revision"
       }
+    },
+    {
+      "name": "seedReportArchiveRead",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-read.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-read\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000024 00000 n \n0000000073 00000 n \n0000000130 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n201\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      },
+      "capture": {
+        "readBatchId": "body.id",
+        "readReportId": "body.reportId"
+      },
+      "expect": [
+        201
+      ]
+    },
+    {
+      "name": "seedReportArchiveReadRevision",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}",
+      "capture": {
+        "readRevision": "body.revision"
+      },
+      "expect": [
+        200
+      ]
+    },
+    {
+      "name": "seedReportArchiveUpdate",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-update.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-update\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000026 00000 n \n0000000075 00000 n \n0000000132 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n203\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      },
+      "capture": {
+        "updateReportId": "body.reportId"
+      },
+      "expect": [
+        201
+      ]
+    },
+    {
+      "name": "seedReportArchiveUpdateRevision",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${updateReportId}",
+      "capture": {
+        "updateRevision": "body.revision"
+      },
+      "expect": [
+        200
+      ]
+    },
+    {
+      "name": "seedReportArchiveArchive",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-archive.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-archive\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000027 00000 n \n0000000076 00000 n \n0000000133 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n204\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      },
+      "capture": {
+        "archiveReportId": "body.reportId"
+      },
+      "expect": [
+        201
+      ]
+    },
+    {
+      "name": "seedReportArchiveArchiveRevision",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${archiveReportId}",
+      "capture": {
+        "archiveRevision": "body.revision"
+      },
+      "expect": [
+        200
+      ]
+    },
+    {
+      "name": "seedReportArchiveArchiveFields",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "PATCH",
+      "path": "/api/tenant/v1/report-archive/reports/${archiveReportId}",
+      "json": {
+        "reportNumber": "SEC-2026-0001",
+        "reportName": "Security suite report",
+        "productName": "Security sample",
+        "institution": "Security Institution",
+        "clientUnit": "Security client",
+        "inspectedUnit": "Security client",
+        "manufacturer": "",
+        "model": "",
+        "category": "",
+        "basis": "",
+        "reportDate": "2026-01-05",
+        "conclusion": "所检项目合格",
+        "details": [],
+        "expectedRevision": "${int:archiveRevision}"
+      },
+      "expect": [
+        200
+      ]
+    },
+    {
+      "name": "seedReportArchiveVoid",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-void.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-void\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000024 00000 n \n0000000073 00000 n \n0000000130 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n201\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      },
+      "capture": {
+        "voidReportId": "body.reportId"
+      },
+      "expect": [
+        201
+      ]
+    },
+    {
+      "name": "seedReportArchiveRestore",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-restore.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-restore\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000027 00000 n \n0000000076 00000 n \n0000000133 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n204\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      },
+      "capture": {
+        "restoreReportId": "body.reportId"
+      },
+      "expect": [
+        201
+      ]
+    },
+    {
+      "name": "seedReportArchiveRestoreVoid",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/reports/${restoreReportId}/void",
+      "json": {
+        "reason": "security suite seeds a voided report for the restore case"
+      },
+      "expect": [
+        200
+      ]
+    },
+    {
+      "name": "seedReportArchiveRetry",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-retry.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-retry\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000025 00000 n \n0000000074 00000 n \n0000000131 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n202\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      },
+      "capture": {
+        "retryReportId": "body.reportId"
+      },
+      "expect": [
+        201
+      ]
+    },
+    {
+      "name": "seedReportArchiveAppend",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-append.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-append\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000026 00000 n \n0000000075 00000 n \n0000000132 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n203\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      },
+      "capture": {
+        "appendBatchId": "body.id"
+      },
+      "expect": [
+        201
+      ]
+    },
+    {
+      "name": "seedReportArchiveRule",
+      "kind": "http",
+      "session": "tenantA",
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/rules",
+      "json": {
+        "templateKey": "security-rule-v1",
+        "name": "Security suite rule",
+        "config": {
+          "templateKey": "security-rule-v1",
+          "name": "Security suite rule",
+          "institution": "Security Institution",
+          "layoutMarkers": [
+            "检测报告",
+            "报告编号"
+          ],
+          "fields": {
+            "reportNumber": {
+              "labels": [
+                "报告编号"
+              ],
+              "pattern": "报告编号\\s*[:：]?\\s*([A-Za-z0-9-]+)",
+              "required": true,
+              "format": "^[A-Z]{2,6}-[0-9]{4,}-[0-9]{3}$"
+            }
+          },
+          "details": {
+            "startMarkers": [
+              "检测项目"
+            ],
+            "endMarkers": [],
+            "skipPatterns": [],
+            "rowPattern": "^(?P<item>.+)$",
+            "minRows": 0,
+            "requireFields": [
+              "item"
+            ]
+          },
+          "validation": {
+            "requiredFields": [
+              "reportNumber"
+            ],
+            "requireDetails": false
+          }
+        }
+      },
+      "capture": {
+        "ruleId": "body.id"
+      },
+      "expect": [
+        201
+      ]
+    },
+    {
+      "name": "seedReportArchiveTemplate",
+      "kind": "http",
+      "session": "platform",
+      "method": "POST",
+      "path": "/api/product-admin/v1/report-templates",
+      "json": {
+        "templateKey": "security-template-v1",
+        "name": "Security suite template",
+        "config": {
+          "templateKey": "security-template-v1",
+          "name": "Security suite template",
+          "institution": "Security Institution",
+          "layoutMarkers": [
+            "检测报告",
+            "报告编号"
+          ],
+          "fields": {
+            "reportNumber": {
+              "labels": [
+                "报告编号"
+              ],
+              "pattern": "报告编号\\s*[:：]?\\s*([A-Za-z0-9-]+)",
+              "required": true,
+              "format": "^[A-Z]{2,6}-[0-9]{4,}-[0-9]{3}$"
+            }
+          },
+          "details": {
+            "startMarkers": [
+              "检测项目"
+            ],
+            "endMarkers": [],
+            "skipPatterns": [],
+            "rowPattern": "^(?P<item>.+)$",
+            "minRows": 0,
+            "requireFields": [
+              "item"
+            ]
+          },
+          "validation": {
+            "requiredFields": [
+              "reportNumber"
+            ],
+            "requireDetails": false
+          }
+        }
+      },
+      "capture": {
+        "templateId": "body.id"
+      },
+      "expect": [
+        201
+      ]
     }
   ],
   "sessions": {},
@@ -705,8 +1011,18 @@
       "method": "GET",
       "path": "/api/admin/v1/session"
     },
-    "getGeneralSettings": { "method": "GET", "path": "/api/admin/v1/settings/general" },
-    "updateGeneralSettings": { "method": "PUT", "path": "/api/admin/v1/settings/general", "json": { "displayName": "SaaS", "expectedRevision": 1 } },
+    "getGeneralSettings": {
+      "method": "GET",
+      "path": "/api/admin/v1/settings/general"
+    },
+    "updateGeneralSettings": {
+      "method": "PUT",
+      "path": "/api/admin/v1/settings/general",
+      "json": {
+        "displayName": "SaaS",
+        "expectedRevision": 1
+      }
+    },
     "getProviderConfigurationStatus": {
       "method": "GET",
       "path": "/api/admin/v1/settings/providers"
@@ -825,6 +1141,246 @@
         "slug": "security-${run}-created",
         "name": "Security created",
         "adminEmail": "security-${run}-created@example.test"
+      }
+    },
+    "activateReportArchiveRule": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/rules/${ruleId}/activate",
+      "json": {}
+    },
+    "activateReportArchiveTemplate": {
+      "method": "POST",
+      "path": "/api/product-admin/v1/report-templates/${templateId}/activate",
+      "json": {}
+    },
+    "appendReportArchiveUploadItem": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads/${appendBatchId}/items",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-append.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-append\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000026 00000 n \n0000000075 00000 n \n0000000132 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n203\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      }
+    },
+    "applyReportArchiveCandidate": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}/candidate/apply",
+      "json": {
+        "expectedRevision": 1
+      },
+      "skip": "needs a reparse candidate produced by an OCR run; cloud OCR is disabled in the CI profile and the candidate flow is covered by the report-archive E2E (#18/#20)"
+    },
+    "archiveReportArchiveReport": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/reports/${archiveReportId}/archive",
+      "json": {
+        "reason": "security suite manual archive",
+        "confirmedIssues": [
+          "DETAILS_MISSING"
+        ]
+      }
+    },
+    "confirmReportArchiveRevision": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}/revision",
+      "json": {
+        "reason": "security suite revision"
+      },
+      "skip": "needs two parsed versions of the same report number; cloud OCR is disabled in the CI profile and revision confirmation is covered by the report-archive E2E (#20)"
+    },
+    "createReportArchiveRule": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/rules",
+      "json": {
+        "templateKey": "security-rule-create-v1",
+        "name": "Security create rule",
+        "config": {
+          "templateKey": "security-rule-v1",
+          "name": "Security suite rule",
+          "institution": "Security Institution",
+          "layoutMarkers": [
+            "检测报告",
+            "报告编号"
+          ],
+          "fields": {
+            "reportNumber": {
+              "labels": [
+                "报告编号"
+              ],
+              "pattern": "报告编号\\s*[:：]?\\s*([A-Za-z0-9-]+)",
+              "required": true,
+              "format": "^[A-Z]{2,6}-[0-9]{4,}-[0-9]{3}$"
+            }
+          },
+          "details": {
+            "startMarkers": [
+              "检测项目"
+            ],
+            "endMarkers": [],
+            "skipPatterns": [],
+            "rowPattern": "^(?P<item>.+)$",
+            "minRows": 0,
+            "requireFields": [
+              "item"
+            ]
+          },
+          "validation": {
+            "requiredFields": [
+              "reportNumber"
+            ],
+            "requireDetails": false
+          }
+        }
+      }
+    },
+    "createReportArchiveTemplate": {
+      "method": "POST",
+      "path": "/api/product-admin/v1/report-templates",
+      "json": {
+        "templateKey": "security-template-create-v1",
+        "name": "Security create template",
+        "config": {
+          "templateKey": "security-template-v1",
+          "name": "Security suite template",
+          "institution": "Security Institution",
+          "layoutMarkers": [
+            "检测报告",
+            "报告编号"
+          ],
+          "fields": {
+            "reportNumber": {
+              "labels": [
+                "报告编号"
+              ],
+              "pattern": "报告编号\\s*[:：]?\\s*([A-Za-z0-9-]+)",
+              "required": true,
+              "format": "^[A-Z]{2,6}-[0-9]{4,}-[0-9]{3}$"
+            }
+          },
+          "details": {
+            "startMarkers": [
+              "检测项目"
+            ],
+            "endMarkers": [],
+            "skipPatterns": [],
+            "rowPattern": "^(?P<item>.+)$",
+            "minRows": 0,
+            "requireFields": [
+              "item"
+            ]
+          },
+          "validation": {
+            "requiredFields": [
+              "reportNumber"
+            ],
+            "requireDetails": false
+          }
+        }
+      }
+    },
+    "createReportArchiveUpload": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/uploads",
+      "body": "------ticSecurityBoundary7f3a\r\nContent-Disposition: form-data; name=\"files\"; filename=\"security-create.pdf\"\r\nContent-Type: application/pdf\r\n\r\n%PDF-1.4\n%security-create\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] >>\nendobj\nxref\n0 4\n0000000000 65535 f \n0000000026 00000 n \n0000000075 00000 n \n0000000132 00000 n \ntrailer\n<< /Size 4 /Root 1 0 R >>\nstartxref\n203\n%%EOF\n\r\n------ticSecurityBoundary7f3a--\r\n",
+      "headers": {
+        "Content-Type": "multipart/form-data; boundary=----ticSecurityBoundary7f3a"
+      }
+    },
+    "downloadReportArchiveOriginal": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}/download"
+    },
+    "getReportArchiveCandidate": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}/candidate",
+      "skip": "needs a reparse candidate produced by an OCR run; cloud OCR is disabled in the CI profile and the candidate flow is covered by the report-archive E2E (#18/#20)"
+    },
+    "getReportArchiveOCR": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}/ocr",
+      "skip": "cloud OCR is disabled in the CI profile; OCR runs are covered by the report-archive E2E (#18)"
+    },
+    "getReportArchiveReport": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}"
+    },
+    "getReportArchiveUploadBatch": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/uploads/${readBatchId}"
+    },
+    "listReportArchiveRules": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/rules"
+    },
+    "listReportArchiveReports": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports"
+    },
+    "listReportArchiveTemplates": {
+      "method": "GET",
+      "path": "/api/product-admin/v1/report-templates"
+    },
+    "previewReportArchiveOriginal": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}/file"
+    },
+    "reparseReportArchiveReport": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}/reparse",
+      "json": {
+        "reason": "security suite reparse"
+      },
+      "skip": "needs an OCR run; cloud OCR is disabled in the CI profile and reparse is covered by the report-archive E2E (#18/#20)"
+    },
+    "restoreReportArchiveReport": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/reports/${restoreReportId}/restore",
+      "json": {
+        "reason": "security suite restore"
+      }
+    },
+    "retryReportArchiveOCR": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/reports/${retryReportId}/retry-ocr",
+      "json": {
+        "reason": "security suite retry"
+      }
+    },
+    "trialReportArchiveRule": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/rules/${ruleId}/trial",
+      "json": {
+        "text": "检测报告\\n报告编号：SEC-2026-0009"
+      }
+    },
+    "updateReportArchiveReport": {
+      "method": "PATCH",
+      "path": "/api/tenant/v1/report-archive/reports/${updateReportId}",
+      "json": {
+        "reportNumber": "SEC-2026-0002",
+        "reportName": "Security suite update",
+        "productName": "Security sample",
+        "institution": "Security Institution",
+        "clientUnit": "Security client",
+        "inspectedUnit": "Security client",
+        "manufacturer": "",
+        "model": "",
+        "category": "",
+        "basis": "",
+        "reportDate": "2026-01-06",
+        "conclusion": "所检项目合格",
+        "details": [],
+        "expectedRevision": "${int:updateRevision}"
+      }
+    },
+    "validateReportArchiveReport": {
+      "method": "GET",
+      "path": "/api/tenant/v1/report-archive/reports/${readReportId}/validation"
+    },
+    "voidReportArchiveReport": {
+      "method": "POST",
+      "path": "/api/tenant/v1/report-archive/reports/${voidReportId}/void",
+      "json": {
+        "reason": "security suite void"
       }
     }
   }

@@ -139,6 +139,7 @@ export interface UploadItem {
 export interface UploadBatch {
   id: string
   createdBy: string
+  reportId?: string
   total: number
   accepted: number
   failed: number

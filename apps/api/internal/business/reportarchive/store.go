@@ -444,7 +444,23 @@ func (s *store) getBatch(ctx context.Context, tenantID, batchID string) (UploadB
 			}
 			b.Items = append(b.Items, item)
 		}
-		return rows.Err()
+		if err := rows.Err(); err != nil {
+			return err
+		}
+		// A single-file batch exposes its report id so callers (and the security fixture) can
+		// continue without parsing the items array.
+		ids := map[string]bool{}
+		for _, item := range b.Items {
+			if item.ReportID != "" {
+				ids[item.ReportID] = true
+			}
+		}
+		if len(ids) == 1 {
+			for id := range ids {
+				b.ReportID = id
+			}
+		}
+		return nil
 	})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return b, ErrNotFound

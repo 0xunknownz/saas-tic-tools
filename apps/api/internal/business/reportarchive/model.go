@@ -222,6 +222,7 @@ type ReportSummary struct {
 type UploadBatch struct {
 	ID        string       `json:"id"`
 	CreatedBy string       `json:"createdBy"`
+	ReportID  string       `json:"reportId,omitempty"`
 	Total     int          `json:"total"`
 	Accepted  int          `json:"accepted"`
 	Failed    int          `json:"failed"`
