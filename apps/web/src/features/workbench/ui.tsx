@@ -39,6 +39,7 @@ export function Pagination({ page, total, pageSize = 5, onChange }: { page: numb
   const pages = Math.max(1, Math.ceil(total / pageSize))
   return <nav className="tic-pagination" aria-label="结果分页"><span role="status">共 {total} 条 · 第 {page} / {pages} 页</span><div><button className="tic-button secondary" disabled={page <= 1} onClick={() => onChange(page - 1)}>上一页</button><button className="tic-button secondary" disabled={page >= pages} onClick={() => onChange(page + 1)}>下一页</button></div></nav>
 }
-export function SampleNotice({ local = false }: { local?: boolean }) {
+export function SampleNotice({ local = false, real = false }: { local?: boolean; real?: boolean }) {
+  if (real) return <aside className="tic-notice" role="note"><strong>真实业务数据</strong><span>本页连接当前租户的报告档案 API；所有读写均受服务端租户与成员权限校验。</span></aside>
   return <aside className="tic-notice" role="note"><strong>示例数据 · 用于模板演示</strong><span>记录、状态与数量均为本地示例，不代表实际业务。{local ? '新增数据仅保存在当前会话，刷新后重置；请勿填写真实信息。' : '不发送真实业务写请求。'}</span></aside>
 }

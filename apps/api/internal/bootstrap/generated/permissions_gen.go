@@ -9,6 +9,7 @@ var Permissions = []plugin.Permission{
 	{Key: "platform.audit.read", Plugin: "foundation.audit"},
 	{Key: "platform.billing.manage", Plugin: "foundation.billing"},
 	{Key: "platform.billing.read", Plugin: "foundation.billing"},
+	{Key: "platform.product.reportarchive.templates", Plugin: "product.reportarchive"},
 	{Key: "platform.product.testitems.manage", Plugin: "product.testitems"},
 	{Key: "platform.product.testitems.read", Plugin: "product.testitems"},
 	{Key: "tenant.product.example.read", Plugin: "product.example"},

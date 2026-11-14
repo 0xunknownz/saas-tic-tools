@@ -1,6 +1,6 @@
 {
   "generatedBy": "saasctl 0.2.1",
-  "digest": "2242b53283065c157b092daa53071931b92dd28a014c6daf2a668df6279d2073",
+  "digest": "2fde1793929b5425cd2ec9b99f91bfaadc1b858f2b1fef07c64a512f03409712",
   "plugins": [
     {
       "id": "foundation.db",
@@ -212,6 +212,23 @@
         }
       ],
       "manifestSha256": "c2b7592d15a001cf5745a9d8ba9ff20d80cdb891f9173d342aa950423877b0c5"
+    },
+    {
+      "id": "product.reportarchive",
+      "version": "0.1.0",
+      "contractVersion": 1,
+      "package": "saas-tic-tools/apps/api/internal/business/reportarchive",
+      "dependencies": [
+        {
+          "id": "foundation.audit",
+          "version": "^1.0.0"
+        },
+        {
+          "id": "foundation.db",
+          "version": "^1.0.0"
+        }
+      ],
+      "manifestSha256": "b0fe8a4bece07386b373dda398cd7e5a1426da3611eddafc3afc432558f56f54"
     },
     {
       "id": "product.testitems",

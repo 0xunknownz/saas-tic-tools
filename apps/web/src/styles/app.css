@@ -87,3 +87,39 @@
 }
 @media (max-width: 540px) { .tic-tool-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }.tic-tool-card { padding: 12px; }.tic-secondary nav { grid-template-columns: 1fr; }.tic-home-side { gap: 16px; }.tic-auth-state { margin: 40px 12px; } }
 @media (prefers-reduced-motion: reduce) { .tic-app * { transition: none !important; scroll-behavior: auto !important; } }
+/* Report archive phase 1 */
+.tic-report-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.tic-report-filters label { flex: 1 1 170px; }
+.tic-report-filters input { min-width: 0; }
+.tic-filter-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.tic-report-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.tic-report-grid .tic-span-all { grid-column: 1 / -1; }
+.tic-error { padding: 10px 12px; margin-bottom: 14px; border: 1px solid #fecaca; background: #fef2f2; color: #b91c1c; border-radius: 10px; font-size: 12px; }
+.tic-error .tic-button { margin-left: 10px; }
+.tic-success { padding: 10px 12px; margin-bottom: 14px; border: 1px solid #bbf7d0; background: #f0fdf4; color: #15803d; border-radius: 10px; font-size: 12px; }
+.tic-tag.warn { background: #fef3c7; color: #b45309; }
+.tic-tag.success { background: #dcfce7; color: #15803d; }
+.tic-tag.muted { background: #f1f5f9; color: #64748b; }
+.tic-mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; overflow-wrap: anywhere; }
+.tic-report-form { max-width: none; }
+.tic-report-preview { width: 100%; min-height: 420px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; }
+.tic-ocr-text pre { max-height: 320px; overflow: auto; white-space: pre-wrap; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; font-size: 12px; }
+.tic-events { margin: 0; padding-left: 18px; display: grid; gap: 8px; font-size: 12px; }
+.tic-issue-list { display: grid; gap: 8px; margin: 12px 0; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 12px; }
+.tic-issue-list label { display: flex; gap: 8px; align-items: flex-start; }
+.tic-reason { display: grid; gap: 6px; margin-top: 12px; color: #475569; font-size: 12px; }
+.tic-reason textarea { width: 100%; border: 1px solid #e2e8f0; border-radius: 10px; padding: 8px 10px; font-size: 12px; }
+.tic-upload-summary { display: flex; flex-wrap: wrap; gap: 24px; margin: 18px 0 0; }
+.tic-upload-summary dt { font-size: 11px; color: #64748b; }.tic-upload-summary dd { margin: 3px 0 0; font-size: 16px; font-weight: 700; }
+.tic-progress { width: 140px; height: 8px; accent-color: #3b82f6; vertical-align: middle; }
+.tic-rule-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.tic-rule-list li { display: grid; gap: 8px; }
+.tic-rule-item { text-align: left; display: grid; gap: 4px; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-size: 12px; }
+.tic-rule-item span { color: #64748b; }
+.tic-rule-item.active, .tic-rule-item:hover { border-color: #93c5fd; background: #eff6ff; }
+.tic-trial-result { display: grid; gap: 12px; margin-top: 16px; }
+@media (max-width: 999px) {
+  .tic-report-grid { grid-template-columns: 1fr; }
+  .tic-report-preview { min-height: 300px; }
+  .tic-progress { width: 90px; }
+}

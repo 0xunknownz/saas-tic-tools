@@ -12,12 +12,12 @@ import (
 	"sort"
 	"strings"
 
-	"saas-tic-tools/apps/api/internal/bootstrap/generated"
-	"saas-tic-tools/apps/api/internal/config"
 	"github.com/0xunknownz/saas.starter/foundation/db"
+	apihttp "github.com/0xunknownz/saas.starter/foundation/http"
 	"github.com/0xunknownz/saas.starter/foundation/lifecycle"
 	"github.com/0xunknownz/saas.starter/foundation/plugin"
-	apihttp "github.com/0xunknownz/saas.starter/foundation/http"
+	"saas-tic-tools/apps/api/internal/bootstrap/generated"
+	"saas-tic-tools/apps/api/internal/config"
 )
 
 // App is a fully wired, not yet started process.
@@ -88,6 +88,14 @@ func New(ctx context.Context, cfg config.Config) (*App, error) {
 			"ossEndpoint": cfg.OSSEndpoint, "ossRegion": cfg.OSSRegion, "ossBucket": cfg.OSSBucket, "ossKeyId": cfg.OSSKeyID, "ossKeyValue": cfg.OSSKeyValue,
 			"s3Endpoint": cfg.S3Endpoint, "s3Region": cfg.S3Region, "s3Bucket": cfg.S3Bucket, "s3KeyId": cfg.S3KeyID,
 			"s3KeyValue": cfg.S3KeyValue, "s3ForcePathStyle": cfg.S3ForcePathStyle})
+	}
+	if generated.Plugins["product.reportarchive"] {
+		sections["product.reportarchive"], _ = json.Marshal(map[string]any{
+			"ocrProvider": cfg.ReportOCRProvider, "ocrEndpoint": cfg.ReportOCREndpoint, "ocrAPIKey": cfg.ReportOCRAPIKey,
+			"ocrModel": cfg.ReportOCRModel, "ocrTimeoutSeconds": cfg.ReportOCRTimeoutSeconds, "ocrMaxConcurrency": cfg.ReportOCRMaxConcurrency,
+			"pollMilliseconds": cfg.ReportPollMilliseconds, "retryBaseSeconds": cfg.ReportRetryBaseSeconds,
+			"maxUploadBytes": cfg.ReportMaxUploadBytes, "maxUploadFiles": cfg.ReportMaxUploadFiles, "maxPDFPages": cfg.ReportMaxPDFPages,
+		})
 	}
 	pcfg, err := generated.LoadConfig(sections)
 	if err != nil {

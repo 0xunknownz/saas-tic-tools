@@ -1,0 +1,24 @@
+id: product.reportarchive
+version: 0.1.0
+contractVersion: 1
+package: "saas-tic-tools/apps/api/internal/business/reportarchive"
+
+dependencies:
+  - id: db
+    version: "^1.0.0"
+  - id: audit
+    version: "^1.0.0"
+
+capabilities:
+  - product.reportarchive.v1
+
+configSchema: "./config.schema.json"
+permissions:
+  - platform.product.reportarchive.templates
+
+entries:
+  service: NewService
+  http: RegisterHTTP
+
+migrations:
+  directory: "./migrations"

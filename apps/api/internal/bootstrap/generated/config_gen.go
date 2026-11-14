@@ -18,25 +18,27 @@ import (
 	storagePlugin "github.com/0xunknownz/saas.starter/foundation/storage"
 	tenantPlugin "github.com/0xunknownz/saas.starter/foundation/tenant"
 	productExamplePlugin "saas-tic-tools/apps/api/internal/business/example"
+	productReportarchivePlugin "saas-tic-tools/apps/api/internal/business/reportarchive"
 	productTestitemsPlugin "saas-tic-tools/apps/api/internal/business/testitems"
 	"sort"
 )
 
 // Config holds one typed configuration section per plugin.
 type Config struct {
-	Db               dbPlugin.Config
-	Audit            auditPlugin.Config
-	Entitlement      entitlementPlugin.Config
-	Notification     notificationPlugin.Config
-	Identity         identityPlugin.Config
-	Jobs             jobsPlugin.Config
-	License          licensePlugin.Config
-	Tenant           tenantPlugin.Config
-	Authorization    authorizationPlugin.Config
-	Billing          billingPlugin.Config
-	Storage          storagePlugin.Config
-	ProductExample   productExamplePlugin.Config
-	ProductTestitems productTestitemsPlugin.Config
+	Db                   dbPlugin.Config
+	Audit                auditPlugin.Config
+	Entitlement          entitlementPlugin.Config
+	Notification         notificationPlugin.Config
+	Identity             identityPlugin.Config
+	Jobs                 jobsPlugin.Config
+	License              licensePlugin.Config
+	Tenant               tenantPlugin.Config
+	Authorization        authorizationPlugin.Config
+	Billing              billingPlugin.Config
+	Storage              storagePlugin.Config
+	ProductExample       productExamplePlugin.Config
+	ProductReportarchive productReportarchivePlugin.Config
+	ProductTestitems     productTestitemsPlugin.Config
 }
 
 // LoadConfig decodes the per-plugin sections (keyed by canonical plugin id). Unknown fields and
@@ -45,7 +47,7 @@ type Config struct {
 // the schema itself once a plugin ships non-trivial constraints.
 func LoadConfig(sections map[string]json.RawMessage) (Config, error) {
 	var cfg Config
-	known := map[string]bool{"foundation.db": true, "foundation.audit": true, "foundation.entitlement": true, "foundation.notification": true, "foundation.identity": true, "foundation.jobs": true, "foundation.license": true, "foundation.tenant": true, "foundation.authorization": true, "foundation.billing": true, "foundation.storage": true, "product.example": true, "product.testitems": true}
+	known := map[string]bool{"foundation.db": true, "foundation.audit": true, "foundation.entitlement": true, "foundation.notification": true, "foundation.identity": true, "foundation.jobs": true, "foundation.license": true, "foundation.tenant": true, "foundation.authorization": true, "foundation.billing": true, "foundation.storage": true, "product.example": true, "product.reportarchive": true, "product.testitems": true}
 	var unknown []string
 	for k := range sections {
 		if !known[k] {
@@ -138,6 +140,13 @@ func LoadConfig(sections map[string]json.RawMessage) (Config, error) {
 		dec.DisallowUnknownFields()
 		if err := dec.Decode(&cfg.ProductExample); err != nil {
 			return cfg, fmt.Errorf("product.example config: %w", err)
+		}
+	}
+	if raw, ok := sections["product.reportarchive"]; ok {
+		dec := json.NewDecoder(bytes.NewReader(raw))
+		dec.DisallowUnknownFields()
+		if err := dec.Decode(&cfg.ProductReportarchive); err != nil {
+			return cfg, fmt.Errorf("product.reportarchive config: %w", err)
 		}
 	}
 	if raw, ok := sections["product.testitems"]; ok {
