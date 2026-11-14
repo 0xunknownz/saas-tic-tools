@@ -1,6 +1,6 @@
-# TIC 双栏登录与租户选择验收
+# TIC 双栏认证入口验收
 
-验收时间：2026-11-14（Asia/Shanghai）。基线 a8e3812，分支 epic/tic-auth-entry。范围对应 GitHub #8、#9。
+验收时间：2026-11-14（Asia/Shanghai）。基线 a8e3812，分支 epic/tic-auth-entry。范围对应 GitHub #8、#9 及目标追加的 #10。
 
 ## 实现与边界
 
@@ -8,7 +8,7 @@
 
 登录继续渲染 Foundation LoginPage，仅通过局部 TenantUIProvider、className 和 scoped CSS 调整品牌、文案及外观。捕获重复的 pending 表单提交，保留 Foundation 的错误、安全提醒和 MFA 分支。租户页通过公开的 useTenants、useTenantApi、ErrorAlert 展示真实账号、成员关系、当前租户及错误；每行直接进入，切换与退出互斥。网络失败可重试，列表接口返回 404/405/501 时提供手动 ID 回退；401 会话失效时保留安全目标进入登录。
 
-返回地址仍通过 Product safeReturnPath/useWebNavigate，保留站内 path/query/hash 并拒绝规范化后变成站外的路径。没有新增后台接口、数据库结构、注册、社交登录、租户创建或筛选功能。样式限定于 .tic-entry，其他 MFA/密码页和管理端保留原有 Foundation 外观。
+返回地址仍通过 Product safeReturnPath/useWebNavigate，保留站内 path/query/hash 并拒绝规范化后变成站外的路径。没有新增后台接口、数据库结构、注册、社交登录、租户创建或筛选功能。样式限定于 .tic-entry，MFA、设置新密码、邀请与管理端保留原有 Foundation 外观。忘记密码页面复用 Foundation usePasswordReset 和原申请接口，并在产品表单上关联必填/邮箱格式错误；成功页使用统一的条件式提示。
 
 ## #8 验收清单
 
@@ -31,9 +31,23 @@
 - [x] 小屏、长名称、明确名称与键盘状态：真实进入按钮使用“进入 + 组织名称”，390px 键盘 Enter 可切到乙；浏览器仅对列表响应名称做排版压力替换，320/390/768/1280px 的 scrollWidth 均等于 viewport，长文本 overflow-wrap:anywhere，实际截图已检查。
 - [x] 视觉、类型、租户/认证回归与完整路径：桌面/移动截图检查通过，完整实际认证链路与路由集成回归通过。
 
+## #10 验收清单
+
+- [x] 双栏布局、品牌介绍与 TIC 规范：复用 AuthEntryLayout，无额外表单卡片；桌面及移动截图已检查。
+- [x] 登录入口、返回登录、直接访问及刷新：真实浏览器点击两端入口并刷新成功，路由回归覆盖往返。
+- [x] 真实申请接口及字段校验：复用 usePasswordReset；必填和 type=email 原生格式错误显示中文提示，aria-invalid/aria-describedby 关联邮箱；实际密码申请 POST 返回 200。
+- [x] 发送中、防重复、失败重试：单元测试与浏览器延迟/503 注入验证 pending 禁用、重复 Enter 只发 1 次，失败保留邮箱；解除注入后重试真实接口成功。
+- [x] 统一条件式成功提示：固定为“如果该邮箱对应一个账号，重置链接已发送。请查收邮件。”；测试确认返回 sent=true/false 均显示相同文本并保留返回登录，不声称邮件送达。
+- [x] 原协议及后续邮件流程：无后台和设置新密码代码变更；既有邮件 token 链接合同及完整申请/重置/MFA 流程回归通过。
+- [x] 小屏、键盘和可访问状态：320/390/768/1280px 无横向溢出，字段有明确标签，错误聚焦输入，按钮键盘操作受 pending 保护，错误 role=alert、成功 role=status。
+- [x] 视觉、类型与密码申请回归：桌面/移动实际截图检查，新增 6 个密码申请测试及 1 个入口往返测试，最终 build/typecheck/test/diff 检查通过。
+- [x] 样式隔离：.tic-entry-password 仅影响本页，浏览器确认 /reset-password 没有 .tic-entry，既有管理端与其他认证回归通过。
+
+本次真实重置申请使用未注册的专用 example.test 地址，验证实际接口响应及条件式确认，没有据此声称邮件已投递。发送中和失败状态通过明确的浏览器故障注入验证，重试成功使用真实接口。
+
 ## 自动验证
 
-pnpm build、pnpm typecheck、pnpm test 和 git diff --check 通过。Web 最终为 16 个文件、110 个测试；租户后台为 3 个文件、10 个测试，共 120 个前端测试。新增 14 个产品入口测试和 1 个完整登录/MFA/租户路径测试，保留原 Foundation 合同、安全提醒和恶意返回地址测试。
+pnpm build、pnpm typecheck、pnpm test 和 git diff --check 通过。Web 最终为 17 个文件、117 个测试；租户后台为 3 个文件、10 个测试，共 127 个前端测试。新增 20 个产品入口测试和 2 个完整认证路径/密码入口往返测试，保留原 Foundation 合同、安全提醒和恶意返回地址测试。
 
 类型检查包含 Web、租户后台、平台后台及共享包；构建包含三个前端应用。没有后端代码改动，因此本次未重新运行后端测试或整套安全探针。凭据重置阻塞提醒使用组件/API stub 回归验证；本次没有向实际用户发送重置邮件。
 
@@ -46,6 +60,8 @@ pnpm build、pnpm typecheck、pnpm test 和 git diff --check 通过。Web 最终
 - tic-tenants-desktop.png：1280×900 真实组织、角色与当前租户。
 - tic-tenants-mobile.png：390×844 真实组织列表。
 - tic-tenants-long-name-320.png：320px 长组织名称压力测试，仅此图使用测试响应名称。
+- tic-password-desktop.png / tic-password-mobile.png：找回密码桌面与移动表单。
+- tic-password-success.png：统一的条件式成功提示。
 
 ## 验收环境与清理
 

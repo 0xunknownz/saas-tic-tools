@@ -24,7 +24,7 @@
 
 目录 apps/web/src/features/workbench/navigation.ts 是导航和快捷入口的统一来源。业务使用真实 pathname，链接支持直接访问、刷新、前进后退。根路由与 /$ 分发工作台页面，未知地址显示找不到页面；详情以稳定 ID 访问，不依赖导航内存。
 
-现有 /login、/tenant/select 采用共享 TIC 双栏入口；登录复用 Foundation LoginPage，租户选择使用 Foundation 的公开会话 hook/API。/forgot-password、/reset-password、/invitations/accept、/mfa/enroll、/mfa/verify 完整保留 Foundation 认证页。双栏入口验收见 [验收记录](tic-auth-entry-acceptance.md)。工作台使用 useSession，只在服务器确认会话后展示；未登录保留目标 URL 的安全 redirect。错误支持重试。注销失败不伪造成功。成员和账单走 /console/members 与 /console/billing，平台管理走 /admin/，均为完整页面跳转，不修改管理端样式。
+现有 /login、/tenant/select、/forgot-password 采用共享 TIC 双栏入口；登录复用 Foundation LoginPage，租户选择与重置申请使用 Foundation 的公开 hook/API。/reset-password、/invitations/accept、/mfa/enroll、/mfa/verify 完整保留 Foundation 认证页。双栏入口验收见 [验收记录](tic-auth-entry-acceptance.md)。工作台使用 useSession，只在服务器确认会话后展示；未登录保留目标 URL 的安全 redirect。错误支持重试。注销失败不伪造成功。成员和账单走 /console/members 与 /console/billing，平台管理走 /admin/，均为完整页面跳转，不修改管理端样式。
 
 所有业务数据均明确为示例，不发送业务写请求；不声称已授权、已上传或已下载。无可用文件时仅展示附件元信息。示例日期为固定日期，不冒充实时运营数据。
 

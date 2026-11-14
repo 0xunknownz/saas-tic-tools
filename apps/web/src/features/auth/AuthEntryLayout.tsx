@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { Icon } from '../workbench/ui'
 import './auth-entry.css'
 
-/** Shared entry frame for login and tenant selection; authentication stays in Foundation. */
+/** Shared entry frame for tenant authentication; authentication stays in Foundation. */
 export function AuthEntryLayout({ children }: { children: ReactNode }) {
   return <div className="tic-entry">
     <div className="tic-entry-panel">

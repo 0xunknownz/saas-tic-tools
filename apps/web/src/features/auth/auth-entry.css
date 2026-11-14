@@ -1,4 +1,4 @@
-/* These product tokens and overrides apply only inside the two entry pages. */
+/* These product tokens and overrides apply only inside the shared entry pages. */
 .tic-entry {
   --ftu-color-primary: #3b82f6;
   --ftu-color-primary-hover: #2563eb;
@@ -75,6 +75,11 @@
 .tic-entry-account-actions { margin-top: 24px; text-align: center; }
 .tic-entry-account-actions .ftu-alert { text-align: left; }
 .tic-entry .ftu-link:disabled { color: #64748b; cursor: not-allowed; }
+.tic-entry-password form { gap: 20px; }
+.tic-entry-field-error { color: #b91c1c; font-size: 12px; margin: 8px 0 0; }
+.tic-entry-password [aria-invalid="true"] { border-color: #dc2626; }
+.tic-entry-password-back { margin-top: 20px; text-align: center; }
+.tic-entry-password-help { color: #64748b; font-size: 12px; margin: 28px 0 0; text-align: center; }
 @media (max-width: 760px) {
   .tic-entry { padding: 24px 16px; align-items: start; }
   .tic-entry-panel { grid-template-columns: minmax(0, 1fr); min-height: 0; max-width: 480px; }
