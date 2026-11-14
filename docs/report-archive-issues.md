@@ -1,6 +1,6 @@
 # 检测报告档案一期 Issues
 
-状态：一期已实现，验收记录见 [report-archive-acceptance.md](report-archive-acceptance.md)。真实云 OCR 与独立样本验收待项目方提供材料；对应复选框保持未勾选。
+状态：一期已实现，验收记录见 [report-archive-acceptance.md](report-archive-acceptance.md)。OCR 供应商已确定为 PaddleOCR 并完成适配；真实云 OCR 与独立样本验收待项目方提供 AI Studio Access Token 与样本；对应复选框保持未勾选。
 
 - [任务 1：[报告档案] 租户档案数据与读取权限](https://github.com/0xunknownz/saas-tic-tools/issues/16)
 - [任务 2：[报告档案] PDF 批量上传、校验与并发去重](https://github.com/0xunknownz/saas-tic-tools/issues/17)
