@@ -347,6 +347,9 @@ func (s *Service) restoreReport(ctx context.Context, tenantID, actor, id, reason
 		before := current
 		if _, err := tx.Exec(ctx, `UPDATE report_reports SET archive_status='archived', is_current=true, voided_at=NULL,
 			void_reason='', archived_at=now(), revision=revision+1, updated_at=now() WHERE tenant_id=$1 AND id=$2`, tenantID, id); err != nil {
+			if pgErrCode(err) == "23505" {
+				return fail(409, "REVISION_CONFIRMATION_REQUIRED", "同机构同报告编号已有有效版本，不能直接恢复")
+			}
 			return err
 		}
 		if err := s.store.insertEventTx(ctx, tx, tenantID, id, "restored", actor, reason, before, map[string]string{"reason": reason}); err != nil {
@@ -407,6 +410,9 @@ func (s *Service) confirmRevision(ctx context.Context, tenantID, actor, id, reas
 		if _, err := tx.Exec(ctx, `UPDATE report_reports SET archive_status='archived', is_current=true, revision_of=$3,
 			report_version=$4, archived_at=now(), review_stage='', review_reason='', revision=revision+1, updated_at=now()
 			WHERE tenant_id=$1 AND id=$2`, tenantID, id, lockedID, version); err != nil {
+			if pgErrCode(err) == "23505" {
+				return fail(409, "REVISION_CONFLICT", "当前有效版本已被其他管理员更新，请刷新后重试")
+			}
 			return err
 		}
 		if err := s.store.insertEventTx(ctx, tx, tenantID, lockedID, "revision_replaced", actor, reason, nil, map[string]any{"newVersion": version}); err != nil {
