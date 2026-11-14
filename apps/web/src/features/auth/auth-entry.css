@@ -1,0 +1,93 @@
+/* These product tokens and overrides apply only inside the shared entry pages. */
+.tic-entry {
+  --ftu-color-primary: #3b82f6;
+  --ftu-color-primary-hover: #2563eb;
+  --ftu-color-link: #2563eb;
+  --ftu-color-focus: #2563eb;
+  --ftu-color-border: #e2e8f0;
+  --ftu-color-border-strong: #e2e8f0;
+  --ftu-color-foreground: #0f172a;
+  --ftu-color-muted: #64748b;
+  --ftu-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --ftu-font-size: 13px;
+  --ftu-radius: 12px;
+  --ftu-radius-lg: 16px;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 48px 24px;
+  background: #f8fafc;
+  color: #0f172a;
+  font: 13px/1.6 var(--ftu-font-family);
+}
+.tic-entry *, .tic-entry *::before, .tic-entry *::after { box-sizing: border-box; }
+.tic-entry :focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.tic-entry-panel { display: grid; grid-template-columns: minmax(0, 42fr) minmax(0, 58fr); width: 100%; max-width: 1040px; min-height: 640px; border: 1px solid #e2e8f0; border-radius: 16px; background: white; box-shadow: 0 12px 40px rgb(15 23 42 / 4%); }
+.tic-entry-intro { display: flex; flex-direction: column; padding: 40px; border-radius: 16px 0 0 16px; background: #eff6ff; border-right: 1px solid #e2e8f0; min-width: 0; }
+.tic-entry-brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 800; }
+.tic-entry-logo { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: #3b82f6; color: white; flex-shrink: 0; }
+.tic-entry-story { margin: auto 0; padding: 46px 0; }
+.tic-entry-kicker { color: #64748b; font-size: 12px; margin: 0 0 12px; }
+.tic-entry-story h2 { font-size: 19px; font-weight: 800; line-height: 1.65; margin: 0 0 14px; }
+.tic-entry-story > p:not(.tic-entry-kicker) { color: #475569; margin: 0; }
+.tic-entry-features { list-style: none; display: grid; gap: 22px; padding: 0; margin: 36px 0 0; }
+.tic-entry-features li { display: flex; align-items: start; gap: 12px; }
+.tic-entry-features .tic-icon { color: #3b82f6; flex-shrink: 0; margin-top: 2px; }
+.tic-entry-features strong { display: block; font-size: 13px; font-weight: 600; }
+.tic-entry-features span { display: block; color: #64748b; font-size: 12px; margin-top: 3px; }
+.tic-entry-caption { color: #64748b; font-size: 11px; margin: 0; }
+.tic-entry-content { min-width: 0; display: flex; flex-direction: column; justify-content: center; padding: 48px 56px; }
+.tic-entry-content > * { width: 100%; }
+.tic-entry .tic-entry-login { min-height: 0; padding: 0; display: block; background: transparent; font: inherit; }
+.tic-entry-login .ftu-shell { max-width: none; }
+.tic-entry-login .ftu-card { padding: 0; border: 0; border-radius: 0; background: transparent; gap: 12px; }
+.tic-entry h1 { font-size: 19px; font-weight: 800; line-height: 1.4; margin: 0; }
+.tic-entry-login .ftu-subtitle { font-size: 13px; color: #64748b; }
+.tic-entry-login form { margin-top: 20px; gap: 20px; }
+.tic-entry .ftu-label { color: #475569; font-size: 12px; margin-bottom: 7px; }
+.tic-entry .ftu-input { font-size: 12px; min-height: 42px; border-radius: 12px; padding: 10px 12px; }
+.tic-entry .ftu-button { border-radius: 9px; min-height: 40px; font-size: 12px; font-weight: 600; }
+.tic-entry .ftu-link { font-size: 12px; text-decoration: none; }
+.tic-entry .ftu-link:hover { text-decoration: underline; }
+.tic-entry-login form > .ftu-row { justify-content: flex-end; }
+/* No inactive social sign-in promotion on the product entry page. */
+.tic-entry-login [data-ftu-oidc="disabled"] { display: none; }
+.tic-entry .ftu-alert { overflow-wrap: anywhere; }
+.tic-entry-heading { margin-bottom: 24px; }
+.tic-entry-heading p { color: #64748b; margin: 10px 0 0; }
+.tic-entry-status { color: #64748b; margin: 16px 0; }
+.tic-entry-account { padding-bottom: 20px; color: #64748b; font-size: 12px; }
+.tic-entry-account strong { display: block; color: #475569; font-size: 13px; font-weight: 500; overflow-wrap: anywhere; margin-top: 3px; }
+.tic-entry-tenant-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid #e2e8f0; }
+.tic-entry-tenant-list li { display: flex; align-items: center; gap: 16px; padding: 18px 12px; border-bottom: 1px solid #e2e8f0; }
+.tic-entry-tenant-list li.is-current { background: #eff6ff; }
+.tic-entry-tenant-info { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tic-entry-tenant-info > strong { font-size: 13px; font-weight: 600; }
+.tic-entry-tenant-meta { display: flex; flex-wrap: wrap; gap: 6px 10px; color: #64748b; font-size: 12px; margin-top: 6px; }
+.tic-entry-current { color: #2563eb; }
+.tic-entry-tenant-list .ftu-button { flex-shrink: 0; min-height: 34px; color: #2563eb; background: white; border-color: #e2e8f0; }
+.tic-entry-tenant-list .ftu-button:hover:not(:disabled) { background: #dbeafe; }
+.tic-entry-empty { padding: 24px 0; border-top: 1px solid #e2e8f0; color: #475569; }
+.tic-entry-empty p { color: #64748b; margin: 8px 0 16px; }
+.tic-entry-list-error { margin-bottom: 20px; }
+.tic-entry-manual { margin-top: 24px; }
+.tic-entry-manual p { font-size: 12px; color: #64748b; margin-top: 8px; }
+.tic-entry-account-actions { margin-top: 24px; text-align: center; }
+.tic-entry-account-actions .ftu-alert { text-align: left; }
+.tic-entry .ftu-link:disabled { color: #64748b; cursor: not-allowed; }
+.tic-entry-password form { gap: 20px; }
+.tic-entry-field-error { color: #b91c1c; font-size: 12px; margin: 8px 0 0; }
+.tic-entry-password [aria-invalid="true"] { border-color: #dc2626; }
+.tic-entry-password-back { margin-top: 20px; text-align: center; }
+.tic-entry-password-help { color: #64748b; font-size: 12px; margin: 28px 0 0; text-align: center; }
+@media (max-width: 760px) {
+  .tic-entry { padding: 24px 16px; align-items: start; }
+  .tic-entry-panel { grid-template-columns: minmax(0, 1fr); min-height: 0; max-width: 480px; }
+  .tic-entry-intro { padding: 22px 24px; border-right: 0; border-bottom: 1px solid #e2e8f0; border-radius: 16px 16px 0 0; }
+  .tic-entry-story { padding: 12px 0 0; }
+  .tic-entry-story h2 { font-size: 13px; font-weight: 500; margin: 0; color: #475569; }
+  .tic-entry-story h2 br { display: none; }
+  .tic-entry-kicker, .tic-entry-story > p, .tic-entry-features, .tic-entry-caption { display: none; }
+  .tic-entry-content { padding: 32px 24px; }
+}
+@media (max-width: 360px) { .tic-entry { padding: 12px; }.tic-entry-content, .tic-entry-intro { padding-left: 18px; padding-right: 18px; } }

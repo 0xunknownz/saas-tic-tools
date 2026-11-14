@@ -5,6 +5,7 @@ import { Route as LoginRoute } from '../src/routes/login'
 import { Route as VerifyRoute } from '../src/routes/mfa.verify'
 import { Route as EnrollRoute } from '../src/routes/mfa.enroll'
 import { Route as SelectRoute } from '../src/routes/tenant.select'
+import { Route as ForgotRoute } from '../src/routes/forgot-password'
 import { fieldByName, mockApi, renderWithProviders, TEST_PW } from './helpers'
 
 function renderLogin(level: 'full' | 'mfa_pending' | 'setup', target: string) {
@@ -16,6 +17,7 @@ function renderLogin(level: 'full' | 'mfa_pending' | 'setup', target: string) {
     VerifyRoute.update({ getParentRoute: () => root, id: '/mfa/verify', path: '/mfa/verify' } as never),
     EnrollRoute.update({ getParentRoute: () => root, id: '/mfa/enroll', path: '/mfa/enroll' } as never),
     SelectRoute.update({ getParentRoute: () => root, id: '/tenant/select', path: '/tenant/select' } as never),
+    ForgotRoute.update({ getParentRoute: () => root, id: '/forgot-password', path: '/forgot-password' } as never),
     home, project,
   ])
   const router = createRouter({ routeTree, history: createMemoryHistory({ initialEntries: ['/login?redirect=' + encodeURIComponent(target)] }) })
@@ -31,6 +33,30 @@ async function submitPassword(container: HTMLElement) {
 }
 
 describe('product authentication route chain', () => {
+  it('opens the product password request from login and returns to the existing login route', async () => {
+    const { router } = renderLogin('full', '/')
+    fireEvent.click(await screen.findByRole('button', { name: '忘记密码？' }))
+    await screen.findByRole('heading', { name: '找回密码' })
+    expect(router.state.location.pathname).toBe('/forgot-password')
+    fireEvent.click(screen.getByRole('link', { name: '返回登录' }))
+    await screen.findByRole('heading', { name: '欢迎回来' })
+    expect(router.state.location.pathname).toBe('/login')
+  })
+  it('completes password login, MFA and tenant selection before returning to the full target', async () => {
+    const target = '/projects/project-001?tab=summary#details'
+    const { container, router, api } = renderLogin('mfa_pending', '/tenant/select?redirect=' + encodeURIComponent(target))
+    vi.mocked(api.listTenants).mockResolvedValue({ items: [{ id: 'tenant-1', slug: 'acme', name: '验收机构', status: 'active', role: 'tenant_admin' }], nextCursor: null, total: 1 })
+    await submitPassword(container)
+    await screen.findByRole('button', { name: '验证并登录' })
+    fireEvent.change(fieldByName(container, 'mfa-verify', 'code'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: '验证并登录' }))
+    fireEvent.click(await screen.findByRole('button', { name: '进入 验收机构' }))
+    await screen.findByRole('heading', { name: '目标项目' })
+    expect(api.switchTenant).toHaveBeenCalledWith('tenant-1')
+    expect(router.state.location.pathname).toBe('/projects/project-001')
+    expect(router.state.location.search).toEqual({ tab: 'summary' })
+    expect(router.state.location.hash).toBe('details')
+  })
   it('rejects a return target that becomes protocol-relative after URL normalization during full login', async () => {
     const { container, router } = renderLogin('full', '/console/..//evil.example/landing')
     await submitPassword(container)
@@ -47,7 +73,7 @@ describe('product authentication route chain', () => {
       const { router, api } = renderLogin('mfa_pending', target)
       vi.mocked(api.listTenants).mockResolvedValue({ items: [{ id: 'tenant-1', slug: 'acme', name: '验收机构', status: 'active', role: 'tenant_admin' }], nextCursor: null, total: 1 })
       await router.navigate({ href: '/tenant/select?redirect=' + encodeURIComponent(target) })
-      fireEvent.click(await screen.findByRole('button', { name: '进入', exact: true }))
+      fireEvent.click(await screen.findByRole('button', { name: '进入 验收机构', exact: true }))
       await screen.findByRole('heading', { name: expectedPath === '/' ? '工作台' : '目标项目' })
       expect(router.state.location.pathname).toBe(expectedPath)
     })

@@ -1,9 +1,9 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { ForgotPasswordPage } from '@0xunknownz/foundation-tenant-ui'
+import { TicForgotPasswordPage } from '../features/auth/TicForgotPasswordPage'
 
 export const Route = createFileRoute('/forgot-password')({ component: ForgotPasswordRoute })
 
 function ForgotPasswordRoute() {
   const navigate = useNavigate()
-  return <ForgotPasswordPage navigate={(path) => void navigate({ href: path })} />
+  return <TicForgotPasswordPage navigate={(path) => void navigate({ href: path })} />
 }

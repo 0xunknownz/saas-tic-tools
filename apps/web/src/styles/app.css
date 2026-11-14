@@ -3,7 +3,7 @@
 @import "@0xunknownz/foundation-tenant-ui/styles.css";
 @source "../../node_modules/@0xunknownz/foundation-tenant-ui/dist";
 
-/* TIC product styles are scoped to the workbench; authentication and admin apps retain Foundation. */
+/* Workbench styles stay scoped here; authentication entry pages use their own scoped auth-entry.css. */
 .tic-app, .tic-auth-state { --tic-primary: #3b82f6; --tic-border: #e2e8f0; --tic-muted: #64748b; color: #0f172a; font: 13px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
 .tic-app { display: grid; grid-template-columns: 72px minmax(0, 1fr); min-height: 100dvh; background: #f8fafc; }
 .tic-app.has-secondary { grid-template-columns: 72px 232px minmax(0, 1fr); }
