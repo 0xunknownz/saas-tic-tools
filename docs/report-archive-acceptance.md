@@ -173,9 +173,9 @@ pnpm test                            # 17 个测试文件 / 114 个测试通过
 
 | 变量 | 说明 |
 |---|---|
-| `REPORT_OCR_PROVIDER` | `disabled` 或 `ocrspace` |
+| `REPORT_OCR_PROVIDER` | `disabled`、`ocrspace` 或 `paddleocr`（项目方选定 PaddleOCR） |
 | `REPORT_OCR_ENDPOINT` | OCR HTTP 端点（默认 OCR.space） |
-| `REPORT_OCR_API_KEY` | 仅服务端；`ocrspace` 时必填 |
+| `REPORT_OCR_API_KEY` | 仅服务端；`ocrspace` / `paddleocr` 时必填（PaddleOCR 为 AI Studio Access Token） |
 | `REPORT_OCR_MODEL` | 记录到 OCR 运行 |
 | `REPORT_OCR_TIMEOUT_SECONDS` | 默认 90 |
 | `REPORT_OCR_MAX_CONCURRENCY` | 默认 2 |
