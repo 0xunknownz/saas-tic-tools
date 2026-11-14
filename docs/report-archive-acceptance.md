@@ -86,6 +86,7 @@ OCR 供应商由项目方指定为 **PaddleOCR**（AI Studio 官方 API）。后
 | 场景 | 结果 |
 |---|---|
 | 替身 OCR 第一次 429、第二次成功 | 任务 attempts=2、archived，规则版本落库 |
+| PaddleOCR 官方协议替身（submit/poll/JSONL） | 上传 6 页样本 → OCR succeeded（provider=paddleocr、model=PP-OCRv6）→ 34 条明细自动归档 |
 | worker 重启前遗留 running 任务 | 启动恢复为 queued 并成功；报告数不增加 |
 | OCR 页数与 PDF 不一致 | needs_review，错误阶段 ocr，不截页 |
 | 未配置 OCR | needs_review，reviewStage=ocr，原因“云端 OCR 尚未配置” |
