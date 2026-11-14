@@ -1,0 +1,1160 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Product report archive API",
+    "version": "0.1.0",
+    "description": "Tenant-scoped detection report archive: uploads, OCR runs, structured details, review actions and template rules. Every response carries X-Request-ID."
+  },
+  "paths": {
+    "/api/tenant/v1/report-archive/reports": {
+      "get": {
+        "operationId": "listReportArchiveReports",
+        "summary": "List report archive records",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.read",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "List report archive records",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}": {
+      "get": {
+        "operationId": "getReportArchiveReport",
+        "summary": "Get one report archive record",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.read",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Get one report archive record",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateReportArchiveReport",
+        "summary": "Edit report fields and details",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Edit report fields and details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/ocr": {
+      "get": {
+        "operationId": "getReportArchiveOCR",
+        "summary": "Get raw OCR run for a report",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.read",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Get raw OCR run for a report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/candidate": {
+      "get": {
+        "operationId": "getReportArchiveCandidate",
+        "summary": "Get reparse candidate",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.read",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Get reparse candidate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/validation": {
+      "get": {
+        "operationId": "validateReportArchiveReport",
+        "summary": "Preview manual-archive validation issues",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Preview manual-archive validation issues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/file": {
+      "get": {
+        "operationId": "previewReportArchiveOriginal",
+        "summary": "Preview the immutable original PDF (Range supported)",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.read",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Preview the immutable original PDF (Range supported)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/download": {
+      "get": {
+        "operationId": "downloadReportArchiveOriginal",
+        "summary": "Download the immutable original PDF",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.read",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Download the immutable original PDF",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/uploads": {
+      "post": {
+        "operationId": "createReportArchiveUpload",
+        "summary": "Upload a batch of PDFs",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "201": {
+            "description": "Upload a batch of PDFs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/uploads/{id}": {
+      "get": {
+        "operationId": "getReportArchiveUploadBatch",
+        "summary": "Get upload batch progress",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.read",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Get upload batch progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/uploads/{id}/items": {
+      "post": {
+        "operationId": "appendReportArchiveUploadItem",
+        "summary": "Retry or append one file to a batch",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Retry or append one file to a batch",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/archive": {
+      "post": {
+        "operationId": "archiveReportArchiveReport",
+        "summary": "Manually archive after acknowledging issues",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Manually archive after acknowledging issues",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/void": {
+      "post": {
+        "operationId": "voidReportArchiveReport",
+        "summary": "Void a report with a reason",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Void a report with a reason",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/restore": {
+      "post": {
+        "operationId": "restoreReportArchiveReport",
+        "summary": "Restore a voided report",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Restore a voided report",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/revision": {
+      "post": {
+        "operationId": "confirmReportArchiveRevision",
+        "summary": "Confirm a revision relationship",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Confirm a revision relationship",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/reparse": {
+      "post": {
+        "operationId": "reparseReportArchiveReport",
+        "summary": "Queue a reparse candidate",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "202": {
+            "description": "Queue a reparse candidate",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/retry-ocr": {
+      "post": {
+        "operationId": "retryReportArchiveOCR",
+        "summary": "Queue an OCR retry",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "202": {
+            "description": "Queue an OCR retry",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/reports/{id}/candidate/apply": {
+      "post": {
+        "operationId": "applyReportArchiveCandidate",
+        "summary": "Apply a reparse candidate explicitly",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Apply a reparse candidate explicitly",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/rules": {
+      "get": {
+        "operationId": "listReportArchiveRules",
+        "summary": "List built-in and tenant rules",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "List built-in and tenant rules",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createReportArchiveRule",
+        "summary": "Create a new rule draft version",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "201": {
+            "description": "Create a new rule draft version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/rules/{id}/activate": {
+      "post": {
+        "operationId": "activateReportArchiveRule",
+        "summary": "Activate a rule version",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Activate a rule version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tenant/v1/report-archive/rules/{id}/trial": {
+      "post": {
+        "operationId": "trialReportArchiveRule",
+        "summary": "Trial-parse text without changing archives",
+        "security": [
+          {
+            "tenantSession": []
+          }
+        ],
+        "x-permission": "tenant.data.write",
+        "x-tenant-scoped": true,
+        "responses": {
+          "200": {
+            "description": "Trial-parse text without changing archives",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product-admin/v1/report-templates": {
+      "get": {
+        "operationId": "listReportArchiveTemplates",
+        "summary": "List built-in report templates",
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "x-permission": "platform.product.reportarchive.templates",
+        "x-tenant-scoped": false,
+        "responses": {
+          "200": {
+            "description": "List built-in report templates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createReportArchiveTemplate",
+        "summary": "Create a built-in report template version",
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "x-permission": "platform.product.reportarchive.templates",
+        "x-tenant-scoped": false,
+        "responses": {
+          "201": {
+            "description": "Create a built-in report template version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/product-admin/v1/report-templates/{id}/activate": {
+      "post": {
+        "operationId": "activateReportArchiveTemplate",
+        "summary": "Activate a built-in template",
+        "security": [
+          {
+            "adminSession": []
+          }
+        ],
+        "x-permission": "platform.product.reportarchive.templates",
+        "x-tenant-scoped": false,
+        "responses": {
+          "200": {
+            "description": "Activate a built-in template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Access denied or resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource missing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "tenantSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "tenant_session"
+      },
+      "adminSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "admin_session"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
