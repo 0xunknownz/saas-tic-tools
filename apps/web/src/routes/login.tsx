@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useWebNavigate } from '../use-web-navigate'
-import { LoginPage } from '@0xunknownz/foundation-tenant-ui'
+import { TicLoginPage } from '../features/auth/TicLoginPage'
 import { safeReturnPath } from '../cross-app'
 
 export const Route = createFileRoute('/login')({
@@ -13,7 +13,7 @@ export const Route = createFileRoute('/login')({
 function LoginRoute() {
   const navigate = useWebNavigate()
   const { redirect } = Route.useSearch()
-  return <LoginPage redirect={redirect} navigate={(path) => {
+  return <TicLoginPage redirect={redirect} navigate={(path) => {
     // Foundation's login page selects the required MFA step; retain the product destination.
     const isMfaStep = path === '/mfa/verify' || path === '/mfa/enroll'
     const href = isMfaStep && redirect !== undefined

@@ -31,6 +31,21 @@ async function submitPassword(container: HTMLElement) {
 }
 
 describe('product authentication route chain', () => {
+  it('completes password login, MFA and tenant selection before returning to the full target', async () => {
+    const target = '/projects/project-001?tab=summary#details'
+    const { container, router, api } = renderLogin('mfa_pending', '/tenant/select?redirect=' + encodeURIComponent(target))
+    vi.mocked(api.listTenants).mockResolvedValue({ items: [{ id: 'tenant-1', slug: 'acme', name: '验收机构', status: 'active', role: 'tenant_admin' }], nextCursor: null, total: 1 })
+    await submitPassword(container)
+    await screen.findByRole('button', { name: '验证并登录' })
+    fireEvent.change(fieldByName(container, 'mfa-verify', 'code'), { target: { value: '123456' } })
+    fireEvent.click(screen.getByRole('button', { name: '验证并登录' }))
+    fireEvent.click(await screen.findByRole('button', { name: '进入 验收机构' }))
+    await screen.findByRole('heading', { name: '目标项目' })
+    expect(api.switchTenant).toHaveBeenCalledWith('tenant-1')
+    expect(router.state.location.pathname).toBe('/projects/project-001')
+    expect(router.state.location.search).toEqual({ tab: 'summary' })
+    expect(router.state.location.hash).toBe('details')
+  })
   it('rejects a return target that becomes protocol-relative after URL normalization during full login', async () => {
     const { container, router } = renderLogin('full', '/console/..//evil.example/landing')
     await submitPassword(container)
@@ -47,7 +62,7 @@ describe('product authentication route chain', () => {
       const { router, api } = renderLogin('mfa_pending', target)
       vi.mocked(api.listTenants).mockResolvedValue({ items: [{ id: 'tenant-1', slug: 'acme', name: '验收机构', status: 'active', role: 'tenant_admin' }], nextCursor: null, total: 1 })
       await router.navigate({ href: '/tenant/select?redirect=' + encodeURIComponent(target) })
-      fireEvent.click(await screen.findByRole('button', { name: '进入', exact: true }))
+      fireEvent.click(await screen.findByRole('button', { name: '进入 验收机构', exact: true }))
       await screen.findByRole('heading', { name: expectedPath === '/' ? '工作台' : '目标项目' })
       expect(router.state.location.pathname).toBe(expectedPath)
     })
