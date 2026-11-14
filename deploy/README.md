@@ -106,6 +106,9 @@ variables (technical design 12.2).
 | `STORAGE_PROVIDER`, `STORAGE_MAX_FILE_SIZE` | storage; `local` is test/development only (11.15) |
 | `NOTIFICATION_PROVIDER`, `SMTP_*` | transactional e-mail; `disabled` keeps e-mail in the outbox |
 | `TENANT_SELF_SIGNUP`, `TENANT_SELF_SERVICE_CREATE` | runtime overrides of `product.yaml` |
+| `REPORT_OCR_PROVIDER`, `REPORT_OCR_ENDPOINT`, `REPORT_OCR_MODEL` | report archive OCR; `paddleocr` calls the AI Studio official API |
+| `REPORT_OCR_API_KEY` | PaddleOCR AI Studio Access Token; server-side secret, never commit or bake into an image |
+| `REPORT_MAX_UPLOAD_BYTES`, `REPORT_MAX_UPLOAD_FILES`, `REPORT_MAX_PDF_PAGES` | report upload limits (defaults 50,000,000 / 50 / 100) |
 | `MIGRATION_LOCK_TIMEOUT` | how long the one-shot migration waits for the database lock |
 
 ## Migration failure behaviour

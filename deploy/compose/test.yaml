@@ -39,6 +39,18 @@ x-app-env: &app-env
   ADMIN_PUBLIC_URL: "${ADMIN_PUBLIC_URL:-http://localhost:8080/admin}"
   TENANT_SELF_SIGNUP: "${TENANT_SELF_SIGNUP:-true}"
   TENANT_SELF_SERVICE_CREATE: "${TENANT_SELF_SERVICE_CREATE:-false}"
+  # Report archive OCR (PaddleOCR official API). Keep the token server-side only.
+  REPORT_OCR_PROVIDER: "${REPORT_OCR_PROVIDER:-disabled}"
+  REPORT_OCR_ENDPOINT: "${REPORT_OCR_ENDPOINT:-https://paddleocr.aistudio-app.com}"
+  REPORT_OCR_API_KEY: "${REPORT_OCR_API_KEY:-}"
+  REPORT_OCR_MODEL: "${REPORT_OCR_MODEL:-PP-OCRv6}"
+  REPORT_OCR_TIMEOUT_SECONDS: "${REPORT_OCR_TIMEOUT_SECONDS:-90}"
+  REPORT_OCR_MAX_CONCURRENCY: "${REPORT_OCR_MAX_CONCURRENCY:-2}"
+  REPORT_WORKER_POLL_MS: "${REPORT_WORKER_POLL_MS:-1000}"
+  REPORT_RETRY_BASE_SECONDS: "${REPORT_RETRY_BASE_SECONDS:-5}"
+  REPORT_MAX_UPLOAD_BYTES: "${REPORT_MAX_UPLOAD_BYTES:-50000000}"
+  REPORT_MAX_UPLOAD_FILES: "${REPORT_MAX_UPLOAD_FILES:-50}"
+  REPORT_MAX_PDF_PAGES: "${REPORT_MAX_PDF_PAGES:-100}"
   # Licence gating state lives in the database; these values enable signature verification for
   # licence management. The test-license managed block in deploy/.env fills them (#109); a
   # deployment with its own licence flow sets them instead and test-license.sh then refuses.

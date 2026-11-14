@@ -20,4 +20,11 @@ data:
   ADMIN_PUBLIC_URL: {{ .Values.config.adminPublicURL | quote }}
   TENANT_SELF_SIGNUP: {{ .Values.config.tenantSelfSignup | quote }}
   TENANT_SELF_SERVICE_CREATE: {{ .Values.config.tenantSelfServiceCreate | quote }}
+  REPORT_OCR_PROVIDER: {{ .Values.config.reportOCRProvider | quote }}
+  REPORT_OCR_ENDPOINT: {{ .Values.config.reportOCREndpoint | quote }}
+  REPORT_OCR_MODEL: {{ .Values.config.reportOCRModel | quote }}
+  REPORT_OCR_MAX_CONCURRENCY: {{ .Values.config.reportOCRMaxConcurrency | quote }}
+  REPORT_MAX_UPLOAD_BYTES: {{ .Values.config.reportMaxUploadBytes | quote }}
+  REPORT_MAX_UPLOAD_FILES: {{ .Values.config.reportMaxUploadFiles | quote }}
+  REPORT_MAX_PDF_PAGES: {{ .Values.config.reportMaxPDFPages | quote }}
   IDENTITY_PROVIDERS: {{ .Values.config.identityProviders | quote }}

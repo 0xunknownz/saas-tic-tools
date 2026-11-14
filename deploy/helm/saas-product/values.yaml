@@ -26,6 +26,13 @@ config:
   smtpFrom: ""
   tenantSelfSignup: "false"
   tenantSelfServiceCreate: "false"
+  reportOCRProvider: "disabled"
+  reportOCREndpoint: "https://paddleocr.aistudio-app.com"
+  reportOCRModel: "PP-OCRv6"
+  reportOCRMaxConcurrency: "2"
+  reportMaxUploadBytes: "50000000"
+  reportMaxUploadFiles: "50"
+  reportMaxPDFPages: "100"
   identityProviders: ""
 postgres:
   database: saas
