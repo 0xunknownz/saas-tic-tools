@@ -1,4 +1,120 @@
-/* Product style entry; Foundation Tenant UI owns its tokens and page styles. The published package
-   ships dist/ (not its source), so Tailwind must scan the bundle explicitly. */
 @import "@0xunknownz/foundation-tenant-ui/styles.css";
 @source "../../node_modules/@0xunknownz/foundation-tenant-ui/dist";
+
+/* This entry belongs exclusively to tenant-admin. No Web/auth or platform styles are imported. */
+body { margin: 0; }
+.tic-admin { --tic-border: #e2e8f0; color: #0f172a; background: #f8fafc; min-height: 100dvh; display: grid; grid-template-columns: 72px 232px minmax(0, 1fr); font: 13px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; }
+.tic-admin *, .tic-admin *::before, .tic-admin *::after { box-sizing: border-box; }
+.tic-admin h1 { font-size: 19px; font-weight: 800; line-height: 1.4; margin: 0; }
+.tic-admin h2 { font-size: 15px; font-weight: 800; margin: 0; }
+.tic-admin p { margin: 0; }
+.tic-admin button, .tic-admin input, .tic-admin textarea, .tic-admin select { font: inherit; }
+.tic-admin a { color: #2563eb; text-decoration: none; }
+.tic-admin :focus-visible { outline: 3px solid #2563eb; outline-offset: 3px; }
+.tic-admin .tic-primary { position: sticky; top: 0; height: 100dvh; padding: 16px 12px; background: white; border-right: 1px solid var(--tic-border); }
+.tic-admin .tic-brand { display: flex; width: 34px; height: 34px; margin: 0 auto 24px; border-radius: 10px; background: #3b82f6; color: white; align-items: center; justify-content: center; font-size: 21px; font-weight: 800; }
+.tic-admin .tic-primary nav { display: grid; gap: 8px; }
+.tic-admin .tic-primary nav a { display: flex; align-items: center; justify-content: center; min-height: 44px; border-radius: 10px; color: #475569; }
+.tic-admin .tic-primary nav span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.tic-admin .tic-primary nav a.active, .tic-admin .tic-primary nav a:hover { background: #eff6ff; color: #3b82f6; }
+.tic-admin .tic-secondary { position: sticky; top: 0; height: 100dvh; background: white; border-right: 1px solid var(--tic-border); padding: 24px 16px; }
+.tic-admin .tic-eyebrow { color: #64748b; font-size: 11px; letter-spacing: .04em; margin: 0 10px 8px; }
+.tic-admin .tic-secondary h2 { margin: 0 10px 24px; }
+.tic-admin .tic-secondary nav { display: grid; gap: 6px; }
+.tic-admin .tic-secondary nav a { color: #475569; display: flex; align-items: center; gap: 9px; border-radius: 10px; padding: 10px 12px; }
+.tic-admin .tic-secondary nav a span { margin-left: auto; color: #94a3b8; }
+.tic-admin .tic-secondary nav a.active, .tic-admin .tic-secondary nav a:hover { background: #eff6ff; color: #2563eb; }
+.tic-admin .tic-sidebar-note { margin: 28px 10px 0; padding-top: 18px; border-top: 1px solid var(--tic-border); color: #64748b; font-size: 11px; }
+.tic-admin .tic-workspace { min-width: 0; }
+.tic-admin .tic-topbar { height: 58px; padding: 0 22px; background: white; border-bottom: 1px solid var(--tic-border); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.tic-admin .tic-topbar > strong { font-size: 15px; font-weight: 800; }
+.tic-admin .tic-topbar > div { display: flex; align-items: center; gap: 18px; font-size: 12px; min-width: 0; }
+.tic-admin .tic-account { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #475569; }
+.tic-admin .tic-content { padding: 16px 22px 28px; min-width: 0; }
+.tic-admin .tic-page { display: grid; gap: 18px; }
+.tic-admin .tic-page-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.tic-admin .tic-page-heading p { color: #64748b; margin-top: 6px; }
+.tic-admin .tic-panel { min-width: 0; background: white; border: 1px solid var(--tic-border); border-radius: 16px; padding: 20px; box-shadow: 0 3px 14px rgb(15 23 42 / 3%); }
+.tic-admin .tic-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.tic-admin .tic-hint { color: #64748b; font-size: 12px; }
+.tic-admin .tic-panel-note { margin-top: 16px; }
+.tic-admin .tic-stack { display: grid; gap: 16px; }
+.tic-admin .tic-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.tic-admin .tic-button { display: inline-flex; justify-content: center; align-items: center; border: 1px solid #3b82f6; background: #3b82f6; color: white; border-radius: 9px; padding: 7px 14px; min-height: 36px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.tic-admin .tic-button:hover { background: #2563eb; }
+.tic-admin .tic-button-secondary { background: white; color: #475569; border-color: var(--tic-border); }
+.tic-admin .tic-button-secondary:hover { background: #f8fafc; }
+.tic-admin .tic-button-danger { background: #b91c1c; border-color: #b91c1c; color: white; }
+.tic-admin .tic-button-danger:hover { background: #991b1b; }
+.tic-admin button:disabled { opacity: .5; cursor: not-allowed; }
+.tic-admin .tic-label { color: #475569; font-size: 12px; font-weight: 600; }
+.tic-admin .tic-form-field { display: grid; gap: 6px; }
+.tic-admin .tic-input { width: 100%; border: 1px solid var(--tic-border); padding: 9px 12px; border-radius: 12px; font-size: 12px; background: white; color: #0f172a; }
+.tic-admin textarea.tic-input { resize: vertical; }
+.tic-admin .tic-input[aria-invalid=true] { border-color: #b91c1c; }
+.tic-admin .tic-field-error { color: #b91c1c; font-size: 12px; }
+.tic-admin .tic-alert { background: #f8fafc; border: 1px solid var(--tic-border); border-radius: 12px; padding: 12px 14px; color: #475569; overflow-wrap: anywhere; }
+.tic-admin .tic-alert[role=alert] { color: #b91c1c; }
+.tic-admin .tic-credential { display: block; margin: 10px 0; padding: 10px; background: white; border: 1px solid var(--tic-border); border-radius: 9px; overflow-wrap: anywhere; user-select: all; }
+.tic-admin .tic-table-scroll { max-width: 100%; overflow-x: auto; border: 1px solid var(--tic-border); border-radius: 12px; }
+.tic-admin .tic-table { border-collapse: collapse; width: 100%; min-width: 780px; text-align: left; font-size: 13px; }
+.tic-admin .tic-table th, .tic-admin .tic-table td { padding: 14px 16px; border-bottom: 1px solid var(--tic-border); vertical-align: top; }
+.tic-admin .tic-table th { color: #475569; background: #f8fafc; font-weight: 600; white-space: nowrap; }
+.tic-admin .tic-table tbody tr:last-child td { border-bottom: 0; }
+.tic-admin .tic-member-name { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.tic-admin .tic-member-name strong { max-width: 210px; overflow: hidden; text-overflow: ellipsis; }
+.tic-admin .tic-table td:nth-child(3), .tic-admin .tic-table td:nth-child(6) { white-space: nowrap; }
+.tic-admin .tic-avatar { display: inline-flex; align-items: center; justify-content: center; height: 30px; width: 30px; border-radius: 10px; background: #eff6ff; color: #2563eb; font-size: 12px; font-weight: 600; }
+.tic-admin .tic-badge { display: inline-block; width: fit-content; border-radius: 7px; background: #f1f5f9; color: #475569; padding: 2px 7px; font-size: 11px; white-space: nowrap; }
+.tic-admin .tic-badge.success { background: #f0fdf4; color: #15803d; }
+.tic-admin .tic-badge.current { background: #eff6ff; color: #2563eb; }
+.tic-admin .tic-nowrap { white-space: nowrap; }
+.tic-admin .tic-menu summary { color: #2563eb; cursor: pointer; border-radius: 6px; white-space: nowrap; }
+.tic-admin .tic-menu > div { display: grid; gap: 3px; padding-top: 8px; }
+.tic-admin .tic-menu button { display: block; background: #f8fafc; border: 1px solid var(--tic-border); border-radius: 7px; padding: 6px 8px; color: #475569; text-align: left; font-size: 12px; cursor: pointer; white-space: nowrap; }
+.tic-admin .tic-menu button:hover { background: #eff6ff; color: #2563eb; }
+.tic-admin .tic-empty { padding: 48px 16px; color: #64748b; text-align: center; }
+.tic-admin .tic-dialog { padding: 24px; border: 1px solid var(--tic-border); border-radius: 16px; width: 480px; max-width: calc(100vw - 28px); max-height: calc(100dvh - 28px); overflow-y: auto; color: #0f172a; background: white; margin: auto; box-shadow: 0 20px 80px rgb(15 23 42 / 16%); }
+.tic-admin .tic-dialog::backdrop { background: rgb(15 23 42 / 30%); }
+.tic-admin .tic-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+.tic-admin .tic-close { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border: 1px solid var(--tic-border); background: white; border-radius: 9px; color: #475569; font-size: 22px; cursor: pointer; flex-shrink: 0; }
+.tic-admin .tic-drawer { position: fixed; inset: 0 0 0 auto; margin: 0; width: 360px; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 16px 0 0 16px; border-width: 0 0 0 1px; }
+.tic-admin .tic-drawer > .tic-hint { margin-bottom: 24px; }
+.tic-admin .tic-skip { position: fixed; top: -100px; left: 12px; z-index: 10; background: white; padding: 10px; border-radius: 9px; }
+.tic-admin .tic-skip:focus { top: 10px; }
+.tic-admin .tic-menu-toggle { display: none; }
+.tic-admin .tic-subscription { display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+.tic-admin .tic-subscription dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; margin: 0; flex: 1; }
+.tic-admin .tic-subscription dt { color: #64748b; font-size: 12px; margin-bottom: 6px; }
+.tic-admin .tic-subscription dd { margin: 0; overflow-wrap: anywhere; }
+.tic-admin .tic-subscription .tic-plan-name { font-size: 18px; font-weight: 800; }
+.tic-admin .tic-plan-current { background: #f8fbff; }
+.tic-admin .tic-plan-info { min-width: 160px; }
+.tic-admin .tic-plan-info p { margin-top: 4px; }
+.tic-admin .tic-features { margin: 0; padding-left: 16px; min-width: 190px; color: #475569; }
+.tic-admin .tic-price { display: grid; gap: 8px; min-width: 145px; justify-items: start; }
+@media (max-width: 999px) {
+  .tic-admin { display: block; }
+  .tic-admin .tic-primary { position: static; height: auto; display: flex; gap: 12px; padding: 8px 14px; border-right: 0; border-bottom: 1px solid var(--tic-border); }
+  .tic-admin .tic-brand { margin: 5px 0; flex-shrink: 0; }
+  .tic-admin .tic-primary nav { display: flex; gap: 6px; overflow-x: auto; min-width: 0; }
+  .tic-admin .tic-primary nav a { gap: 6px; padding: 8px 10px; white-space: nowrap; }
+  .tic-admin .tic-primary nav span { position: static; width: auto; height: auto; clip-path: none; font-size: 12px; }
+  .tic-admin .tic-secondary { display: none; position: static; height: auto; padding: 16px; border-right: 0; border-bottom: 1px solid var(--tic-border); }
+  .tic-admin .tic-secondary.open { display: block; }
+  .tic-admin .tic-secondary h2 { margin-bottom: 12px; }
+  .tic-admin .tic-sidebar-note { display: none; }
+  .tic-admin .tic-topbar { padding: 0 14px; }
+  .tic-admin .tic-topbar > div { gap: 10px; }
+  .tic-admin .tic-account { display: none; }
+  .tic-admin .tic-content { padding: 16px 14px 28px; }
+  .tic-admin .tic-panel { padding: 16px; }
+  .tic-admin .tic-menu-toggle { display: inline-flex; }
+  .tic-admin .tic-subscription { flex-wrap: wrap; }
+  .tic-admin .tic-subscription dl { grid-template-columns: repeat(2, minmax(0, 1fr)); flex-basis: 100%; gap: 20px; }
+}
+@media (max-width: 539px) {
+  .tic-admin .tic-page-heading { align-items: start; flex-wrap: wrap; }
+  .tic-admin .tic-page-heading > .tic-button { margin-left: auto; }
+  .tic-admin .tic-drawer { width: min(360px, 100vw); padding: 22px; }
+}
