@@ -30,7 +30,8 @@ OCR 供应商由项目方指定为 **PaddleOCR**（AI Studio 官方 API）。后
 | 租户 | tenant-a（租户甲，管理员/成员）、tenant-b（租户乙，管理员/成员） |
 | 浏览器 | Playwright Chromium 1228，1280×900 与 390×844 |
 | OCR（流水线测试） | 本地 HTTP 替身，模拟 OCR.space 响应；**不是真实云 OCR 验收** |
-| 真实云 OCR | 未配置（无凭据/授权样本） |
+| OCR 供应商 | **PaddleOCR**（AI Studio 官方 API），适配器已合并（5116de2） |
+| 真实云 OCR | 未配置（缺 AI Studio Access Token 与授权样本） |
 
 测试账号仅存在于本地开发数据库，使用测试密码；不在仓库或公开 Issue 中记录凭据。
 
@@ -181,7 +182,7 @@ pnpm test                            # 17 个测试文件 / 114 个测试通过
 
 ## 已知限制与偏离
 
-1. **真实云 OCR 未验收**：本地替身只证明适配器、队列、解析、归档链路，不证明供应商识别率、费用和限制。生产必须配置真实凭据并用授权样本重跑 #18/#22。
+1. **真实云 OCR 未验收**：本地替身只证明适配器、队列、解析、归档链路，不证明供应商识别率、费用和限制。供应商已确定为 PaddleOCR，适配器已实现；部署方需在服务端配置 AI Studio Access Token（`REPORT_OCR_PROVIDER=paddleocr`、`REPORT_OCR_API_KEY`），并用授权样本重跑 #18/#22。不要把令牌提交到仓库。
 2. **独立样本缺失**：没有第二份同版式报告，不能把当前替身文本当作泛化证明。
 3. **原件存储**：Foundation storage 插件未导出可供产品插件依赖的 service 接口（Plugin Contract v1 仅允许依赖接口），本期将不可变原件存入 `report_files.content bytea`，与业务写入同事务提交，避免孤儿文件；后续对象存储迁移需 Foundation 暴露 storage 接口。
 4. **任务队列**：Foundation jobs 同样未导出队列接口；本期使用同一 PostgreSQL 的 `report_jobs`（SKIP LOCKED、幂等键、running 恢复、退避），满足可靠性要求但不是 Foundation jobs 表。
