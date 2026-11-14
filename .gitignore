@@ -14,3 +14,6 @@ dist/
 release/
 # deployment secrets (deploy/.env.example is the template)
 deploy/.env
+
+# Foundation security suite report (uploaded as a CI artifact)
+scripts/security/report.json
