@@ -225,8 +225,12 @@ func Load() (Config, error) {
 		if strings.TrimSpace(c.ReportOCRAPIKey) == "" {
 			return c, fmt.Errorf("REPORT_OCR_PROVIDER=ocrspace requires REPORT_OCR_API_KEY")
 		}
+	case "paddleocr":
+		if strings.TrimSpace(c.ReportOCRAPIKey) == "" {
+			return c, fmt.Errorf("REPORT_OCR_PROVIDER=paddleocr requires REPORT_OCR_API_KEY (AI Studio access token)")
+		}
 	default:
-		return c, fmt.Errorf("REPORT_OCR_PROVIDER must be disabled or ocrspace")
+		return c, fmt.Errorf("REPORT_OCR_PROVIDER must be disabled, ocrspace or paddleocr")
 	}
 	if c.ReportOCRTimeoutSeconds < 1 || c.ReportOCRTimeoutSeconds > 600 || c.ReportOCRMaxConcurrency < 1 || c.ReportOCRMaxConcurrency > 16 ||
 		c.ReportPollMilliseconds < 100 || c.ReportPollMilliseconds > 60000 || c.ReportRetryBaseSeconds < 1 || c.ReportRetryBaseSeconds > 3600 ||

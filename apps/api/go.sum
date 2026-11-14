@@ -1,5 +1,7 @@
 github.com/0xunknownz/saas.starter v0.2.1 h1:fVg2rnwIbqxho1nFIEPRoEp8Whak9qQBBVwM3iL3ea8=
 github.com/0xunknownz/saas.starter v0.2.1/go.mod h1:OKopkNNwMEhOoFBUUr56Feu8nTlqMFWunaEw/qAiHRw=
+github.com/PaddlePaddle/PaddleOCR/api_sdk/go v0.2.0 h1:kl4oK1ZEEpjjo/kl3vIZxa0Qh/X7umz2ikIpY554R/Y=
+github.com/PaddlePaddle/PaddleOCR/api_sdk/go v0.2.0/go.mod h1:DXQ2+vVMbX4A0SpnIGGMjPcBmJG2n1iAsY1wL6Ou4BA=
 github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.1 h1:tpKbQ1WOW3Lp7KobDrEyGL2hFwtIX+WHfXhvI3dIwNw=
 github.com/aliyun/alibabacloud-oss-go-sdk-v2 v1.6.1/go.mod h1:FTzydeQVmR24FI0D6XWUOMKckjXehM/jgMn1xC+DA9M=
 github.com/beevik/etree v1.1.0 h1:T0xke/WvNtMoCqgzPhkX2r4rjY3GDZFi+FjpRZY2Jbs=
