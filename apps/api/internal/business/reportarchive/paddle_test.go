@@ -49,5 +49,9 @@ func TestClassifyPaddleErrors(t *testing.T) {
 	if failure := classifyPaddleError(upstream); !failure.Retryable || failure.Code != "OCR_UPSTREAM" {
 		t.Fatalf("upstream = %+v", failure)
 	}
+	queueFull := &paddleocr.InvalidRequestError{PaddleOCRAPIError: paddleocr.PaddleOCRAPIError{Message: "Bad request: {\"code\":10010,\"msg\":\"任务提交队列已满，请稍后重试\"}"}}
+	if failure := classifyPaddleError(queueFull); !failure.Retryable || failure.Code != "OCR_RATE_LIMITED" {
+		t.Fatalf("queue full = %+v", failure)
+	}
 	_ = time.Second
 }

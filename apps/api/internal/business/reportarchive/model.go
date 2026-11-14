@@ -168,8 +168,21 @@ type Detail struct {
 }
 
 type OCRPage struct {
-	Page int    `json:"page"`
-	Text string `json:"text"`
+	Page  int      `json:"page"`
+	Text  string   `json:"text"`
+	Boxes []OCRBox `json:"boxes,omitempty"`
+}
+
+type OCRBox struct {
+	Text string  `json:"text"`
+	X    float64 `json:"x"`
+	Y    float64 `json:"y"`
+	W    float64 `json:"w"`
+	H    float64 `json:"h"`
+}
+
+func (b OCRBox) center() (float64, float64) {
+	return b.X + b.W/2, b.Y + b.H/2
 }
 
 type OCRRun struct {

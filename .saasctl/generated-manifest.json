@@ -9,7 +9,7 @@
     "apps/api/internal/bootstrap/generated/compose_gen.go": "59a4442f5aadd3ac4ea827232d3bf6b4141754d9bd75f1716c963db2cca62b89",
     "apps/api/internal/bootstrap/generated/composition.json": "8314d6a912072760be0cde8bd2ec418012bef562de28cc5b5710ae5f4e8e8941",
     "apps/api/internal/bootstrap/generated/config_gen.go": "2cc6ceefe18cf568831c2a91f1a0d1c2adca875d97f1e40208d48d123b32b353",
-    "apps/api/internal/bootstrap/generated/migrations_gen.go": "d8e8a161416dae95a674d9bb09e5a228bf3aeb89d42b4c83ad656734ce5c2ee2",
+    "apps/api/internal/bootstrap/generated/migrations_gen.go": "3f61990eb518959159180c6f255f08a6fdf9181c6188cc1293ec636a987e2941",
     "apps/api/internal/bootstrap/generated/permissions_gen.go": "c4824a1aeeb2136a0c51c2222a734d30c2aed5c2974b58fab121f80db5d75805",
     "apps/api/internal/bootstrap/generated/product_gen.go": "81fe5c9f464bc6eecbd28d450083d19f99ff6320c24ad6f663337a05581af32e"
   }

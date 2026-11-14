@@ -53,6 +53,7 @@ var RequiredMigrations = []Migration{
 	{"foundation.storage", "20261106100000", "417e6a21dbad994609bface26b72c8daf76c0c4afe4a2d6081dae969f191a99a"},
 	{"product.reportarchive", "20261115000000", "42b1c7d0e61f08587753f4cafb0636fe80a2ed56ada008acbed87890ae853637"},
 	{"product.reportarchive", "20261115010000", "c188d4b3ebfff9dbd1e73db45eb617b9230b974b6639a49d330f2c59bee0233d"},
+	{"product.reportarchive", "20261115020000", "2c796c50e4e10c822c612b391cd8feb55c8f6aa10d769d3d8eadb44716a7ff4a"},
 	{"product.testitems", "20261108000000", "f4f2c349f57c2944401df79b1c2f1e119000e2a327a374d35c1cf0ea2b74701e"},
 	{"product.testitems", "20261108010000", "27dfa6e1917d4fb1d84048c72a38f2a0c22ef1adb920d9007ffa3f9a24cef1e3"},
 }

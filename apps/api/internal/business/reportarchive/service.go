@@ -212,7 +212,8 @@ func (s *Service) processReport(ctx context.Context, j job) error {
 		if err := s.finishOCRRun(ctx, j, ocrRunID, result); err != nil {
 			return err
 		}
-		ocr = &OCRRun{ID: ocrRunID, Status: "succeeded", Provider: result.Provider, Model: result.Model, Pages: result.Pages, Text: ocrPageText(result.Pages), Raw: result.Raw}
+		pages := rebuildPaddlePages(result.Raw, result.Pages)
+		ocr = &OCRRun{ID: ocrRunID, Status: "succeeded", Provider: result.Provider, Model: result.Model, Pages: pages, Text: ocrPageText(pages), Raw: result.Raw}
 	}
 
 	rules, err := s.store.activeRules(ctx, j.TenantID)
@@ -451,6 +452,7 @@ func (s *Service) reparseReport(ctx context.Context, j job) error {
 	if ocr == nil || ocr.Status != "succeeded" || len(ocr.Pages) == 0 {
 		return &jobFailure{stage: "parse", code: "OCR_MISSING", message: "没有可用的 OCR 结果，请先重试 OCR", retryable: false}
 	}
+	ocr.Pages = rebuildPaddlePages(ocr.Raw, ocr.Pages)
 	rules, err := s.store.activeRules(ctx, j.TenantID)
 	if err != nil {
 		return &jobFailure{stage: "parse", code: "RULES_LOAD", message: "模板规则读取失败", retryable: true}
