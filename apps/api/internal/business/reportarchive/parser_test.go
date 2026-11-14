@@ -237,3 +237,18 @@ func TestDeriveDetectionKeepsUnqualifiedArchiveable(t *testing.T) {
 		t.Fatalf("unknown = %q", got)
 	}
 }
+
+func TestParseDocumentSecondLayoutVariant(t *testing.T) {
+	rule := seedRule(t)
+	variant := []OCRPage{
+		{Page: 1, Text: "江西中标检检测中心有限公司\n检 测 报 告\n产品名称：工业脚轮\n报告编号：ZBJ-261001-208\n检测机构：江西中标检检测中心有限公司\n委托单位：示例制造有限公司\n受检单位：示例制造有限公司\n报告日期：2026-10-08\n检验结论：经检验，所检项目合格\n抽样日期：2026-09-20"},
+		{Page: 2, Text: "工业脚轮检测报告\n第 1 页 共 2 页\n检测项目 技术要求 单位 检验方法 检测结果 单项判定\n一、增塑剂\n1 邻苯二甲酸二丁酯（DBP） ≤0.1 % GB/T 22048-2015 未检出 合格\n2 邻苯二甲酸二异壬酯（DINP） ≤0.1 % GB/T 22048-2015 0.05 合格"},
+	}
+	res := parseDocument(&rule, variant)
+	if res.Fields["reportNumber"] != "ZBJ-261001-208" || res.Fields["productName"] != "工业脚轮" || res.Fields["reportDate"] != "2026-10-08" {
+		t.Fatalf("variant fields = %+v", res.Fields)
+	}
+	if len(res.Details) != 2 || res.Details[1].ResultRaw != "0.05" {
+		t.Fatalf("variant details = %+v", res.Details)
+	}
+}
