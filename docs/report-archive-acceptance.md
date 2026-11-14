@@ -167,7 +167,10 @@ go tool saasctl generate --check     # up to date
 cd apps/web && pnpm typecheck        # 通过
 pnpm build                           # 通过
 pnpm test                            # 17 个测试文件 / 114 个测试通过
+sh scripts/security/run.sh           # Foundation 安全套件 pass：113 操作 / 529 用例 / 478 通过 / 0 失败 / 0 无效
 ```
+
+报告档案契约 25 个操作中 20 个完成基线与全部负例（未登录、平台/租户 realm、缺失权限、过期会话、跨租户、CSRF）；5 个依赖 OCR 真实结果的操作按记录跳过（见已知限制 9）。
 
 ## 部署与配置
 
@@ -195,3 +198,4 @@ pnpm test                            # 17 个测试文件 / 114 个测试通过
 6. PDF 预览已支持单段 HTTP Range；多段 Range 不支持（与 Foundation storage 下载语义一致）。
 7. 规则是受约束的声明式正则配置，依赖首套版式 OCR 文本形态；版式变化需管理员调整规则。
 8. 原始客户 PDF 未提交到仓库；验收使用生成的替身 PDF，真实样本核对仍需项目方提供。
+9. Foundation 安全套件跳过的 5 个操作（OCR 结果、重解析候选、重解析、修订确认、候选应用）需在云 OCR 可用时执行；它们的权限/CSRF 模式与已覆盖的 20 个操作一致，权限矩阵行为由同批负例验证。
